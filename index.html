@@ -1,50 +1,18 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <title>Municipal Bond Housing Calculator</title>
-<style>
-body{
-font-family:Arial;
-margin:40px;
-background:#f5f5f5;
-}
-
-.container{
-background:white;
-padding:20px;
-border-radius:10px;
-max-width:900px;
-margin:auto;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
-
-input{
-margin:5px;
-padding:5px;
-}
-
-table{
-border-collapse:collapse;
-margin-top:20px;
-}
-
-td,th{
-border:1px solid #ccc;
-padding:8px;
-text-align:center;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>Municipal Bond Housing Rent Calculator</h2>
+<h2>Municipal Bond Housing Calculator</h2>
 
-<div>
-<label>Property Cost ($)</label>
-<input id="cost" type="number" value="5000000">
+<div class="controls">
 
 <label>Interest Rate (%)</label>
 <input id="interest" type="number" value="3">
@@ -52,57 +20,47 @@ text-align:center;
 <label>Bond Duration (years)</label>
 <input id="years" type="number" value="30">
 
-<label>Error Margin Multiplier</label>
+<label>Error Margin</label>
 <input id="error" type="number" step="0.01" value="1.1">
 
+<label>Vacancy Rate (%)</label>
+<input id="vacancy" type="number" value="5">
+
+<br><br>
+
+<label>Residents Min</label>
+<input id="resMin" type="number" value="1">
+
+<label>Residents Max</label>
+<input id="resMax" type="number" value="50">
+
+<label>Resident Increment</label>
+<input id="resStep" type="number" value="1">
+
+<br><br>
+
+<label>Property Cost Min ($)</label>
+<input id="costMin" type="number" value="100000">
+
+<label>Property Cost Max ($)</label>
+<input id="costMax" type="number" value="5000000">
+
+<label>Cost Increment ($)</label>
+<input id="costStep" type="number" value="100000">
+
+<br><br>
+
 <button onclick="generate()">Generate Table</button>
+
 </div>
 
+<div class="table-wrapper">
 <table id="rentTable"></table>
+</div>
 
 </div>
 
-<script>
-
-function generate(){
-
-let cost = parseFloat(document.getElementById("cost").value)
-let interest = parseFloat(document.getElementById("interest").value)/100
-let years = parseFloat(document.getElementById("years").value)
-let error = parseFloat(document.getElementById("error").value)
-
-let months = years*12
-let totalCost = cost*Math.pow(1+interest,years)
-
-let table = document.getElementById("rentTable")
-table.innerHTML=""
-
-let header = "<tr><th>Residents</th>"
-
-for(let p=1;p<=20;p++){
-header+="<th>"+p+"</th>"
-}
-
-header+="</tr>"
-table.innerHTML+=header
-
-let row = "<tr><th>Monthly Rent Per Person</th>"
-
-for(let p=1;p<=20;p++){
-
-let rent = (totalCost/months/p)*error
-rent = Math.round(rent)
-
-row+="<td>$"+rent+"</td>"
-
-}
-
-row+="</tr>"
-table.innerHTML+=row
-
-}
-
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
