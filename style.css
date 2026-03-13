@@ -93,3 +93,19 @@ td {
     font-weight: bold;
     color: #fff;
 }
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-result {
+    display: none;
+}
+
+.tab-result.active {
+    display: block;
+}
