@@ -11,7 +11,6 @@ function generate(){
 
 let interest = parseFloat(document.getElementById("interest").value)/100
 let years = parseFloat(document.getElementById("years").value)
-let error = parseFloat(document.getElementById("error").value)
 let vacancy = parseFloat(document.getElementById("vacancy").value)/100
 let grant = parseFloat(document.getElementById("grant").value)
 
@@ -50,7 +49,7 @@ for(let residents=resMin; residents<=resMax; residents+=resStep){
 
 let effectiveResidents = residents * (1 - vacancy)
 
-let rent = (totalCost / months / effectiveResidents) * error
+let rent = totalCost / months / effectiveResidents
 rent = Math.round(rent)
 
 let color = getColor(rent)
