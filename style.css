@@ -3,6 +3,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
+  background: #fafafa;
 }
 
 /* --- Container Layout --- */
@@ -13,15 +14,19 @@ body {
 
 /* --- Sidebar --- */
 .sidebar {
-  width: 400px;
-  padding: 20px;
+  width: 380px;
+  padding: 25px;
   background: #f5f5f5;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 /* --- Tabs --- */
 .tabs {
   display: flex;
+  gap: 10px;
   margin-bottom: 15px;
 }
 
@@ -32,6 +37,7 @@ body {
   background: #ddd;
   border: none;
   font-weight: bold;
+  border-radius: 4px 4px 0 0;
   transition: background 0.2s;
 }
 
@@ -46,60 +52,72 @@ body {
 /* --- Calculator Sections --- */
 .calculator {
   display: none;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .calculator.active {
-  display: block;
+  display: flex;
 }
 
 /* --- Input Groups --- */
 .input-group {
-  display: flex;               /* align children horizontally */
-  align-items: center;         /* vertically center */
-  margin-bottom: 10px;
-  gap: 10px;                   /* spacing between label/input/slider */
+  display: grid;
+  grid-template-columns: 1fr auto 2fr;
+  align-items: center;
+  gap: 10px;
 }
 
 .input-group label {
-  width: 150px;                /* fixed width for all labels */
-  text-align: right;
   font-weight: bold;
+  text-align: right;
+  padding-right: 5px;
 }
 
 .input-group input[type="number"] {
-  width: 80px;                 /* fixed width for number inputs */
+  width: 80px;
+  padding: 5px;
 }
 
 .input-group input[type="range"] {
-  flex: 1;                      /* slider stretches to fill remaining space */
+  width: 100%;
+}
+
+/* --- Headings inside calculator --- */
+.calculator h3, .calculator h4 {
+  margin: 0 0 5px 0;
+  text-align: center;
 }
 
 /* --- Main Area --- */
-/* Make the table scrollable horizontally */
 .main {
-  flex: 1 1 auto;        /* allow flex grow/shrink */
+  flex: 1;
   padding: 25px;
   box-sizing: border-box;
-  overflow-x: auto;      /* scroll if content overflows */
 }
 
-/* --- Table Styling --- */
-table {
+/* --- Table wrapper scroll --- */
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.table-wrapper table {
   border-collapse: collapse;
-  width: max-content;    /* table width = content width */
-  min-width: 100%;       /* at least fill container */
+  width: max-content; /* table grows to fit all columns */
+  min-width: 100%;    /* fill container if few columns */
 }
 
 th, td {
   border: 1px solid #ccc;
-  padding: 5px;
+  padding: 8px;
   text-align: center;
 }
 
 /* --- Tooltip Styling --- */
 .tooltip {
   position: fixed;
-  pointer-events: none;        /* mouse can hover through tooltip */
+  pointer-events: none;
   background: rgba(0,0,0,0.8);
   color: #fff;
   padding: 5px 8px;
@@ -108,4 +126,14 @@ th, td {
   z-index: 1000;
   white-space: nowrap;
   display: none;
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+  }
 }
