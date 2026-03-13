@@ -15,50 +15,53 @@ function switchTab(tab) {
 }
 
 // --- Sync input boxes with sliders ---
-function syncInputWithSlider(inputId) {
+function setupInputSlider(inputId) {
   const input = document.getElementById(inputId);
   const slider = document.getElementById(inputId + 'Slider');
 
-  slider.oninput = () => {
-    input.value = slider.value;
-    updateCalculators();
-  };
-
-  input.oninput = () => {
+  function update() {
     slider.value = input.value;
     updateCalculators();
-  };
+  }
+
+  function updateFromSlider() {
+    input.value = slider.value;
+    updateCalculators();
+  }
+
+  input.oninput = update;
+  slider.oninput = updateFromSlider;
 }
 
-// All synced inputs
+// --- All synced inputs ---
 [
   'interest','years','vacancy','grant',
   'resMin','resMax','resStep','costMin','costMax','costStep',
   'costSqFt','sqFtUnit','nonUnit','units','error'
-].forEach(syncInputWithSlider);
+].forEach(setupInputSlider);
 
-// --- Update both calculators ---
+// --- Update calculators ---
 function updateCalculators() {
-  if(document.getElementById('rent-calculator').classList.contains('active')){
+  if (document.getElementById('rent-calculator').classList.contains('active')) {
     generateRentTable();
   }
-  if(document.getElementById('construction-calculator').classList.contains('active')){
+  if (document.getElementById('construction-calculator').classList.contains('active')) {
     calculateConstruction();
   }
 }
 
 // --- Rent Table Generator ---
-function getColor(rent){
-  if(rent <= 250) return "#4CAF50";
-  if(rent <= 625) return "#FFD54F";
-  if(rent <= 1000) return "#FB8C00";
+function getColor(rent) {
+  if (rent <= 250) return "#4CAF50";
+  if (rent <= 625) return "#FFD54F";
+  if (rent <= 1000) return "#FB8C00";
   return "#E53935";
 }
 
 function generateRentTable() {
-  let interest = parseFloat(document.getElementById("interest").value)/100;
+  let interest = parseFloat(document.getElementById("interest").value) / 100;
   let years = parseFloat(document.getElementById("years").value);
-  let vacancy = parseFloat(document.getElementById("vacancy").value)/100;
+  let vacancy = parseFloat(document.getElementById("vacancy").value) / 100;
   let grant = parseFloat(document.getElementById("grant").value);
 
   let resMin = parseInt(document.getElementById("resMin").value);
@@ -71,42 +74,42 @@ function generateRentTable() {
 
   let months = years * 12;
   let table = document.getElementById("rentTable");
-  table.innerHTML="";
+  table.innerHTML = "";
 
   let header = "<tr><th>Property Cost</th>";
-  for(let r=resMin;r<=resMax;r+=resStep){
-    header += "<th>"+r+"</th>";
+  for (let r = resMin; r <= resMax; r += resStep) {
+    header += "<th>" + r + "</th>";
   }
   header += "</tr>";
   table.innerHTML += header;
 
-  for(let cost=costMin; cost<=costMax; cost+=costStep){
+  for (let cost = costMin; cost <= costMax; cost += costStep) {
     let bondPrincipal = Math.max(0, cost - grant);
     let totalInterest = bondPrincipal * interest * years;
     let totalCost = bondPrincipal + totalInterest;
 
     let row = "<tr>";
-    row += "<th>$"+cost.toLocaleString()+"</th>";
+    row += "<th>$" + cost.toLocaleString() + "</th>";
 
-    for(let residents=resMin; residents<=resMax; residents+=resStep){
+    for (let residents = resMin; residents <= resMax; residents += resStep) {
       let effectiveResidents = residents * (1 - vacancy);
       let rent = totalCost / months / effectiveResidents;
       rent = Math.round(rent);
-      let color = getColor(rent);
-      row += `<td style="background:${color}">$${rent}</td>`;
+      row += `<td style="background:${getColor(rent)}">$${rent}</td>`;
     }
+
     row += "</tr>";
     table.innerHTML += row;
   }
 }
 
 // --- Construction Calculator ---
-function calculateConstruction(){
+function calculateConstruction() {
   let costSqFt = parseFloat(document.getElementById("costSqFt").value);
   let sqFtUnit = parseFloat(document.getElementById("sqFtUnit").value);
-  let nonUnit = parseFloat(document.getElementById("nonUnit").value)/100;
+  let nonUnit = parseFloat(document.getElementById("nonUnit").value) / 100;
   let units = parseFloat(document.getElementById("units").value);
-  let error = parseFloat(document.getElementById("error").value)/100;
+  let error = parseFloat(document.getElementById("error").value) / 100;
 
   let unitSpace = sqFtUnit * units;
   let totalSqFt = unitSpace / (1 - nonUnit);
