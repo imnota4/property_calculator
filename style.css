@@ -11,10 +11,15 @@ body {
 }
 
 .sidebar {
-    width: 280px;
+    width: 300px;              /* Fixed width */
+    min-width: 300px;          /* Ensure it never shrinks */
+    max-width: 300px;          /* Ensure it never grows */
     background: #fff;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    overflow-y: auto;          /* Scrollable if content exceeds height */
+    height: 100vh;             /* Full viewport height */
+    box-sizing: border-box;
 }
 
 .input-group {
@@ -40,8 +45,9 @@ button {
 }
 
 .main-content {
-    flex-grow: 1;
+    flex-grow: 1;              /* Take remaining width */
     padding: 20px;
+    overflow-x: auto;          /* Horizontal scrolling for large tables */
 }
 
 .table-wrapper {
