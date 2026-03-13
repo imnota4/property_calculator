@@ -1,24 +1,25 @@
+/* --- General Body --- */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
 }
 
+/* --- Container Layout --- */
 .container {
   display: flex;
   min-height: 100vh;
 }
 
+/* --- Sidebar --- */
 .sidebar {
   width: 400px;
   padding: 20px;
   background: #f5f5f5;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
+/* --- Tabs --- */
 .tabs {
   display: flex;
   margin-bottom: 15px;
@@ -42,16 +43,16 @@ body {
   background: #bbb;
 }
 
+/* --- Calculator Sections --- */
 .calculator {
   display: none;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .calculator.active {
-  display: flex;
+  display: block;
 }
 
+/* --- Input Groups --- */
 .input-group {
   display: flex;
   align-items: center;
@@ -73,31 +74,27 @@ body {
   flex: 1;
 }
 
+/* --- Main Area --- */
 .main {
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
-  overflow: auto;
 }
 
-.table-wrapper {
-  overflow: auto;
-  width: 100%;
-  height: calc(100vh - 40px);
-}
-
-table {
+/* --- Table Styling --- */
+#rentTable {
+  position: relative;
   border-collapse: collapse;
-  width: max-content;
-  min-width: 100%;
 }
 
-th, td {
+#rentTable th, #rentTable td {
   border: 1px solid #ccc;
   padding: 5px;
   text-align: center;
+  box-sizing: border-box;
 }
 
+/* --- Tooltip Styling --- */
 .tooltip {
   position: fixed;
   pointer-events: none;
