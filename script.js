@@ -1,4 +1,24 @@
- // Color coding for rent cells
+// ----------------- Tabs -----------------
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabContents = document.querySelectorAll(".tab-content");
+const tabResults = document.querySelectorAll(".tab-result");
+
+tabButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const tab = btn.getAttribute("data-tab");
+
+        tabContents.forEach(c => c.classList.remove("active"));
+        document.getElementById(tab + "-tab").classList.add("active");
+
+        tabResults.forEach(r => r.classList.remove("active"));
+        document.getElementById(tab + "-result").classList.add("active");
+    });
+});
+
+// ----------------- Rent Calculator -----------------
 function getColor(rent) {
     if (rent <= 250) return "#4CAF50";
     if (rent <= 625) return "#FFD54F";
@@ -6,9 +26,7 @@ function getColor(rent) {
     return "#E53935";
 }
 
-// Generate table
-function generate() {
-
+function generateRent() {
     let interest = parseFloat(document.getElementById("interest").value) / 100;
     let years = parseFloat(document.getElementById("years").value);
     let vacancy = parseFloat(document.getElementById("vacancy").value) / 100;
@@ -23,73 +41,87 @@ function generate() {
     let costStep = parseInt(document.getElementById("costStep").value);
 
     let months = years * 12;
-
     let table = document.getElementById("rentTable");
     table.innerHTML = "";
 
-    // Table header
+    // Header
     let header = "<tr><th>Property Cost</th>";
     for (let r = resMin; r <= resMax; r += resStep) {
-        header += "<th>" + r + "</th>";
+        header += `<th>${r}</th>`;
     }
     header += "</tr>";
     table.innerHTML += header;
 
-    // Table rows
+    // Rows
     for (let cost = costMin; cost <= costMax; cost += costStep) {
-
         let bondPrincipal = Math.max(0, cost - grant);
-
-        // Coupon bond: total interest over life
         let totalInterest = bondPrincipal * interest * years;
         let totalCost = bondPrincipal + totalInterest;
 
-        let row = "<tr>";
-        row += "<th>$" + cost.toLocaleString() + "</th>";
-
+        let row = `<tr><th>$${cost.toLocaleString()}</th>`;
         for (let residents = resMin; residents <= resMax; residents += resStep) {
-
             let effectiveResidents = residents * (1 - vacancy);
-            let rent = totalCost / months / effectiveResidents;
-            rent = Math.round(rent);
-
+            let rent = Math.round(totalCost / months / effectiveResidents);
             let color = getColor(rent);
-
             row += `<td style="background:${color}">$${rent}</td>`;
         }
-
         row += "</tr>";
         table.innerHTML += row;
     }
 }
 
-// Helper to sync number input and slider
-function syncInput(numberId, sliderId) {
-    const numInput = document.getElementById(numberId);
+// ----------------- Construction Calculator -----------------
+function generateConstruction() {
+    let costSqFt = parseFloat(document.getElementById("costSqFt").value);
+    let sqFtUnit = parseFloat(document.getElementById("sqFtUnit").value);
+    let nonUnit = parseFloat(document.getElementById("nonUnit").value) / 100;
+    let units = parseFloat(document.getElementById("units").value);
+    let error = parseFloat(document.getElementById("errorConstruction").value);
+
+    let unitSpace = sqFtUnit * units;
+    let totalSqFt = unitSpace / (1 - nonUnit);
+    let totalCost = totalSqFt * costSqFt * error;
+
+    document.getElementById("totalSqFt").innerText = Math.round(totalSqFt).toLocaleString() + " sq ft";
+    document.getElementById("totalCost").innerText = "$" + Math.round(totalCost).toLocaleString();
+}
+
+// ----------------- Sync sliders -----------------
+function syncInput(numId, sliderId, callback) {
+    const num = document.getElementById(numId);
     const slider = document.getElementById(sliderId);
 
-    numInput.addEventListener("input", () => {
-        slider.value = numInput.value;
-        generate();
+    num.addEventListener("input", () => {
+        slider.value = num.value;
+        callback();
     });
 
     slider.addEventListener("input", () => {
-        numInput.value = slider.value;
-        generate();
+        num.value = slider.value;
+        callback();
     });
 }
 
-// Initialize all synced inputs
+// ----------------- Initialize -----------------
 window.onload = function () {
-    generate(); // Initial table
-    syncInput("interest", "interestSlider");
-    syncInput("years", "yearsSlider");
-    syncInput("vacancy", "vacancySlider");
-    syncInput("grant", "grantSlider");
-    syncInput("resMin", "resMinSlider");
-    syncInput("resMax", "resMaxSlider");
-    syncInput("resStep", "resStepSlider");
-    syncInput("costMin", "costMinSlider");
-    syncInput("costMax", "costMaxSlider");
-    syncInput("costStep", "costStepSlider");
+    // Rent calculator sliders
+    syncInput("interest", "interestSlider", generateRent);
+    syncInput("years", "yearsSlider", generateRent);
+    syncInput("vacancy", "vacancySlider", generateRent);
+    syncInput("grant", "grantSlider", generateRent);
+    syncInput("resMin", "resMinSlider", generateRent);
+    syncInput("resMax", "resMaxSlider", generateRent);
+    syncInput("resStep", "resStepSlider", generateRent);
+    syncInput("costMin", "costMinSlider", generateRent);
+    syncInput("costMax", "costMaxSlider", generateRent);
+    syncInput("costStep", "costStepSlider", generateRent);
+    generateRent();
+
+    // Construction sliders
+    syncInput("costSqFt", "costSqFtSlider", generateConstruction);
+    syncInput("sqFtUnit", "sqFtUnitSlider", generateConstruction);
+    syncInput("nonUnit", "nonUnitSlider", generateConstruction);
+    syncInput("units", "unitsSlider", generateConstruction);
+    syncInput("errorConstruction", "errorConstructionSlider", generateConstruction);
+    generateConstruction();
 };
