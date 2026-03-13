@@ -24,61 +24,61 @@
       <h3>Rent Calculator</h3>
 
       <div class="input-group">
-        <label>Interest Rate (%)</label>
+        <label data-tooltip="The annual interest rate applied to the mortgage/bond.">Interest Rate (%)</label>
         <input id="interest" type="number" value="3">
         <input type="range" id="interestSlider" min="0" max="10" step="0.01" value="3">
       </div>
 
       <div class="input-group">
-        <label>Bond Duration (years)</label>
+        <label data-tooltip="The number of years for the bond/mortgage.">Bond Duration (years)</label>
         <input id="years" type="number" value="30">
         <input type="range" id="yearsSlider" min="1" max="50" step="1" value="30">
       </div>
 
       <div class="input-group">
-        <label>Vacancy Rate (%)</label>
+        <label data-tooltip="The expected percentage of units that will be vacant.">Vacancy Rate (%)</label>
         <input id="vacancy" type="number" value="5">
         <input type="range" id="vacancySlider" min="0" max="50" step="0.1" value="5">
       </div>
 
       <div class="input-group">
-        <label>Government Grant ($)</label>
+        <label data-tooltip="Government grants reduce the upfront property cost.">Government Grant ($)</label>
         <input id="grant" type="number" value="0">
         <input type="range" id="grantSlider" min="0" max="1000000" step="1000" value="0">
       </div>
 
       <div class="input-group">
-        <label>Residents Min</label>
+        <label data-tooltip="Minimum number of residents to consider in calculations.">Residents Min</label>
         <input id="resMin" type="number" value="1">
         <input type="range" id="resMinSlider" min="1" max="50" step="1" value="1">
       </div>
 
       <div class="input-group">
-        <label>Residents Max</label>
+        <label data-tooltip="Maximum number of residents to consider in calculations.">Residents Max</label>
         <input id="resMax" type="number" value="50">
         <input type="range" id="resMaxSlider" min="1" max="50" step="1" value="50">
       </div>
 
       <div class="input-group">
-        <label>Resident Increment</label>
+        <label data-tooltip="Step increment for residents in the table.">Resident Increment</label>
         <input id="resStep" type="number" value="1">
         <input type="range" id="resStepSlider" min="1" max="10" step="1" value="1">
       </div>
 
       <div class="input-group">
-        <label>Property Cost Min ($)</label>
+        <label data-tooltip="Minimum property cost to calculate rent for.">Property Cost Min ($)</label>
         <input id="costMin" type="number" value="100000">
         <input type="range" id="costMinSlider" min="50000" max="5000000" step="10000" value="100000">
       </div>
 
       <div class="input-group">
-        <label>Property Cost Max ($)</label>
+        <label data-tooltip="Maximum property cost to calculate rent for.">Property Cost Max ($)</label>
         <input id="costMax" type="number" value="5000000">
         <input type="range" id="costMaxSlider" min="100000" max="10000000" step="10000" value="5000000">
       </div>
 
       <div class="input-group">
-        <label>Cost Increment ($)</label>
+        <label data-tooltip="Increment step for property cost in the table.">Cost Increment ($)</label>
         <input id="costStep" type="number" value="100000">
         <input type="range" id="costStepSlider" min="1000" max="1000000" step="1000" value="100000">
       </div>
@@ -91,31 +91,31 @@
       <h3>Construction Calculator</h3>
 
       <div class="input-group">
-        <label>Cost per Sq Ft ($)</label>
+        <label data-tooltip="Cost per square foot of construction.">Cost per Sq Ft ($)</label>
         <input id="costSqFt" type="number" value="300">
         <input type="range" id="costSqFtSlider" min="100" max="1000" step="10" value="300">
       </div>
 
       <div class="input-group">
-        <label>Sq Ft per Unit</label>
+        <label data-tooltip="Square feet per individual unit.">Sq Ft per Unit</label>
         <input id="sqFtUnit" type="number" value="800">
         <input type="range" id="sqFtUnitSlider" min="150" max="2000" step="10" value="800">
       </div>
 
       <div class="input-group">
-        <label>Non-Unit Space (%)</label>
+        <label data-tooltip="Percentage of total building not used for units (common areas, hallways, etc.).">Non-Unit Space (%)</label>
         <input id="nonUnit" type="number" value="20">
         <input type="range" id="nonUnitSlider" min="0" max="50" step="1" value="20">
       </div>
 
       <div class="input-group">
-        <label>Number of Units</label>
+        <label data-tooltip="Number of residential units in the building.">Number of Units</label>
         <input id="units" type="number" value="20">
         <input type="range" id="unitsSlider" min="1" max="50" step="1" value="20">
       </div>
 
       <div class="input-group">
-        <label>Error Margin (%)</label>
+        <label data-tooltip="Error margin percentage applied to cost estimate.">Error Margin (%)</label>
         <input id="error" type="number" step="0.01" value="1.1">
         <input type="range" id="errorSlider" min="1" max="2" step="0.01" value="1.1">
       </div>
@@ -136,6 +136,9 @@
   </div>
 
 </div>
+
+<!-- Tooltip element -->
+<div id="tooltip" class="tooltip"></div>
 
 <script src="script.js"></script>
 </body>
