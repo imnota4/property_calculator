@@ -24,37 +24,37 @@
       <h3>Rent Calculator</h3>
 
       <div class="input-group">
-        <label data-tooltip="The annual interest rate applied to the mortgage/bond.">Interest Rate (%)</label>
+        <label data-tooltip="The annual interest rate applied to the municipal bond. Interest on municipal bonds do not compound.">Interest Rate (%)</label>
         <input id="interest" type="number" value="3">
         <input type="range" id="interestSlider" min="0" max="10" step="0.01" value="3">
       </div>
 
       <div class="input-group">
-        <label data-tooltip="The number of years for the bond/mortgage.">Bond Duration (years)</label>
+        <label data-tooltip="The number of years until the bond reaches maturity and the original principal is repaid">Bond Duration (years)</label>
         <input id="years" type="number" value="30">
         <input type="range" id="yearsSlider" min="1" max="50" step="1" value="30">
       </div>
 
       <div class="input-group">
-        <label data-tooltip="The expected percentage of units that will be vacant.">Vacancy Rate (%)</label>
+        <label data-tooltip="The expected percentage of units that will be vacant. People renting will need to pay on behalf of vacant rooms.">Vacancy Rate (%)</label>
         <input id="vacancy" type="number" value="5">
         <input type="range" id="vacancySlider" min="0" max="50" step="0.1" value="5">
       </div>
 
       <div class="input-group">
-        <label data-tooltip="Government grants reduce the upfront property cost.">Government Grant ($)</label>
+        <label data-tooltip="Government grants used to reduce the size of the bond and therefore reduce cost to rent">Government Grant ($)</label>
         <input id="grant" type="number" value="0">
         <input type="range" id="grantSlider" min="0" max="1000000" step="1000" value="0">
       </div>
 
       <div class="input-group">
-        <label data-tooltip="Minimum number of residents to consider in calculations.">Residents Min</label>
+        <label data-tooltip="Minimum number of renters the table should display">Residents Min</label>
         <input id="resMin" type="number" value="1">
         <input type="range" id="resMinSlider" min="1" max="50" step="1" value="1">
       </div>
 
       <div class="input-group">
-        <label data-tooltip="Maximum number of residents to consider in calculations.">Residents Max</label>
+        <label data-tooltip="Maximum number of renters the table should display">Residents Max</label>
         <input id="resMax" type="number" value="50">
         <input type="range" id="resMaxSlider" min="1" max="50" step="1" value="50">
       </div>
@@ -66,13 +66,13 @@
       </div>
 
       <div class="input-group">
-        <label data-tooltip="Minimum property cost to calculate rent for.">Property Cost Min ($)</label>
+        <label data-tooltip="Minimum property cost the table should display">Property Cost Min ($)</label>
         <input id="costMin" type="number" value="100000">
         <input type="range" id="costMinSlider" min="50000" max="5000000" step="10000" value="100000">
       </div>
 
       <div class="input-group">
-        <label data-tooltip="Maximum property cost to calculate rent for.">Property Cost Max ($)</label>
+        <label data-tooltip="Maximum property cost the table should display">Property Cost Max ($)</label>
         <input id="costMax" type="number" value="5000000">
         <input type="range" id="costMaxSlider" min="100000" max="10000000" step="10000" value="5000000">
       </div>
