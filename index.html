@@ -9,117 +9,104 @@
 
 <div class="container">
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab-button active" onclick="switchTab('rent')">Rent Calculator</button>
-    <button class="tab-button" onclick="switchTab('construction')">Construction Calculator</button>
-  </div>
-
+  <!-- Sidebar -->
   <div class="sidebar">
-    
+
+    <!-- Tabs at the TOP of the sidebar -->
+    <div class="tabs">
+      <button class="tab-button active" onclick="switchTab('rent')">Rent Calculator</button>
+      <button class="tab-button" onclick="switchTab('construction')">Construction Calculator</button>
+    </div>
+
     <!-- Rent Calculator -->
     <div id="rent-calculator" class="calculator active">
       <h3>Rent Calculator</h3>
-      
-      <!-- Interest -->
+
       <div class="input-group">
         <label>Interest Rate (%)</label>
-        <input type="number" id="interest" value="3" min="0" max="20" step="0.01">
-        <input type="range" id="interest-slider" min="0" max="20" step="0.01" value="3">
+        <input id="interest" type="number" value="3">
       </div>
 
-      <!-- Bond Duration -->
       <div class="input-group">
         <label>Bond Duration (years)</label>
-        <input type="number" id="years" value="30" min="1" max="100" step="1">
-        <input type="range" id="years-slider" min="1" max="100" step="1" value="30">
+        <input id="years" type="number" value="30">
       </div>
 
-      <!-- Vacancy Rate -->
       <div class="input-group">
         <label>Vacancy Rate (%)</label>
-        <input type="number" id="vacancy" value="5" min="0" max="100" step="0.01">
-        <input type="range" id="vacancy-slider" min="0" max="100" step="0.01" value="5">
+        <input id="vacancy" type="number" value="5">
       </div>
 
-      <!-- Government Grant -->
       <div class="input-group">
         <label>Government Grant ($)</label>
-        <input type="number" id="grant" value="0" min="0" step="1000">
-        <input type="range" id="grant-slider" min="0" max="5000000" step="1000" value="0">
+        <input id="grant" type="number" value="0">
       </div>
 
-      <!-- Residents & Costs -->
       <div class="input-group">
         <label>Residents Min</label>
-        <input type="number" id="resMin" value="1" min="1" step="1">
+        <input id="resMin" type="number" value="1">
       </div>
+
       <div class="input-group">
         <label>Residents Max</label>
-        <input type="number" id="resMax" value="50" min="1" step="1">
+        <input id="resMax" type="number" value="50">
       </div>
+
       <div class="input-group">
         <label>Resident Increment</label>
-        <input type="number" id="resStep" value="1" min="1" step="1">
+        <input id="resStep" type="number" value="1">
       </div>
 
       <div class="input-group">
         <label>Property Cost Min ($)</label>
-        <input type="number" id="costMin" value="100000" min="0" step="10000">
+        <input id="costMin" type="number" value="100000">
       </div>
+
       <div class="input-group">
         <label>Property Cost Max ($)</label>
-        <input type="number" id="costMax" value="5000000" min="0" step="10000">
+        <input id="costMax" type="number" value="5000000">
       </div>
+
       <div class="input-group">
         <label>Cost Increment ($)</label>
-        <input type="number" id="costStep" value="100000" min="1" step="10000">
+        <input id="costStep" type="number" value="100000">
       </div>
     </div>
 
     <!-- Construction Calculator -->
     <div id="construction-calculator" class="calculator">
       <h3>Construction Calculator</h3>
-      
+
       <div class="input-group">
         <label>Cost per Sq Ft ($)</label>
-        <input type="number" id="costSqFt" value="300" min="0" step="1">
-        <input type="range" id="costSqFt-slider" min="0" max="1000" step="1" value="300">
+        <input id="costSqFt" type="number" value="300">
       </div>
 
       <div class="input-group">
         <label>Sq Ft per Unit</label>
-        <input type="number" id="sqFtUnit" value="800" min="0" step="1">
-        <input type="range" id="sqFtUnit-slider" min="0" max="5000" step="1" value="800">
+        <input id="sqFtUnit" type="number" value="800">
       </div>
 
       <div class="input-group">
         <label>Non-Unit Space (%)</label>
-        <input type="number" id="nonUnit" value="20" min="0" max="100" step="0.01">
-        <input type="range" id="nonUnit-slider" min="0" max="100" step="0.01" value="20">
+        <input id="nonUnit" type="number" value="20">
       </div>
 
       <div class="input-group">
         <label>Number of Units</label>
-        <input type="number" id="units" value="20" min="1" step="1">
+        <input id="units" type="number" value="20">
       </div>
 
       <div class="input-group">
         <label>Error Margin (%)</label>
-        <input type="number" id="error" value="10" min="0" step="0.1">
-        <input type="range" id="error-slider" min="0" max="100" step="0.1" value="10">
+        <input id="error" type="number" step="0.01" value="1.1">
       </div>
 
-      <div class="result">
-        <h3>Total Building Sq Ft:</h3>
-        <p id="totalSqFt">-</p>
-        <h3>Total Construction Cost:</h3>
-        <p id="totalCost">-</p>
-      </div>
     </div>
+
   </div>
 
-  <!-- Main Area for Rent Table -->
+  <!-- Main Area -->
   <div class="main">
     <table id="rentTable"></table>
   </div>
