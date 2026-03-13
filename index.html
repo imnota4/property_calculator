@@ -20,87 +20,111 @@
 
     <!-- Rent Calculator -->
     <div id="rent-calculator" class="calculator active">
+
       <h3>Rent Calculator</h3>
 
       <div class="input-group">
         <label>Interest Rate (%)</label>
-        <input id="interest" type="number" value="3">
+        <input id="interest" type="number" value="3" oninput="generate()">
+        <input type="range" id="interestSlider" min="0" max="10" step="0.01" value="3" oninput="syncSlider('interest')">
       </div>
 
       <div class="input-group">
         <label>Bond Duration (years)</label>
-        <input id="years" type="number" value="30">
+        <input id="years" type="number" value="30" oninput="generate()">
+        <input type="range" id="yearsSlider" min="1" max="50" step="1" value="30" oninput="syncSlider('years')">
       </div>
 
       <div class="input-group">
         <label>Vacancy Rate (%)</label>
-        <input id="vacancy" type="number" value="5">
+        <input id="vacancy" type="number" value="5" oninput="generate()">
+        <input type="range" id="vacancySlider" min="0" max="50" step="0.1" value="5" oninput="syncSlider('vacancy')">
       </div>
 
       <div class="input-group">
         <label>Government Grant ($)</label>
-        <input id="grant" type="number" value="0">
+        <input id="grant" type="number" value="0" oninput="generate()">
+        <input type="range" id="grantSlider" min="0" max="1000000" step="1000" value="0" oninput="syncSlider('grant')">
       </div>
 
       <div class="input-group">
         <label>Residents Min</label>
-        <input id="resMin" type="number" value="1">
+        <input id="resMin" type="number" value="1" oninput="generate()">
+        <input type="range" id="resMinSlider" min="1" max="50" step="1" value="1" oninput="syncSlider('resMin')">
       </div>
 
       <div class="input-group">
         <label>Residents Max</label>
-        <input id="resMax" type="number" value="50">
+        <input id="resMax" type="number" value="50" oninput="generate()">
+        <input type="range" id="resMaxSlider" min="1" max="50" step="1" value="50" oninput="syncSlider('resMax')">
       </div>
 
       <div class="input-group">
         <label>Resident Increment</label>
-        <input id="resStep" type="number" value="1">
+        <input id="resStep" type="number" value="1" oninput="generate()">
+        <input type="range" id="resStepSlider" min="1" max="10" step="1" value="1" oninput="syncSlider('resStep')">
       </div>
 
       <div class="input-group">
         <label>Property Cost Min ($)</label>
-        <input id="costMin" type="number" value="100000">
+        <input id="costMin" type="number" value="100000" oninput="generate()">
+        <input type="range" id="costMinSlider" min="50000" max="5000000" step="10000" value="100000" oninput="syncSlider('costMin')">
       </div>
 
       <div class="input-group">
         <label>Property Cost Max ($)</label>
-        <input id="costMax" type="number" value="5000000">
+        <input id="costMax" type="number" value="5000000" oninput="generate()">
+        <input type="range" id="costMaxSlider" min="100000" max="10000000" step="10000" value="5000000" oninput="syncSlider('costMax')">
       </div>
 
       <div class="input-group">
         <label>Cost Increment ($)</label>
-        <input id="costStep" type="number" value="100000">
+        <input id="costStep" type="number" value="100000" oninput="generate()">
+        <input type="range" id="costStepSlider" min="1000" max="1000000" step="1000" value="100000" oninput="syncSlider('costStep')">
       </div>
+
     </div>
 
     <!-- Construction Calculator -->
     <div id="construction-calculator" class="calculator">
+
       <h3>Construction Calculator</h3>
 
       <div class="input-group">
         <label>Cost per Sq Ft ($)</label>
-        <input id="costSqFt" type="number" value="300">
+        <input id="costSqFt" type="number" value="300" oninput="calculateConstruction()">
+        <input type="range" id="costSqFtSlider" min="100" max="1000" step="10" value="300" oninput="syncSlider('costSqFt')">
       </div>
 
       <div class="input-group">
         <label>Sq Ft per Unit</label>
-        <input id="sqFtUnit" type="number" value="800">
+        <input id="sqFtUnit" type="number" value="800" oninput="calculateConstruction()">
+        <input type="range" id="sqFtUnitSlider" min="150" max="2000" step="10" value="800" oninput="syncSlider('sqFtUnit')">
       </div>
 
       <div class="input-group">
         <label>Non-Unit Space (%)</label>
-        <input id="nonUnit" type="number" value="20">
+        <input id="nonUnit" type="number" value="20" oninput="calculateConstruction()">
+        <input type="range" id="nonUnitSlider" min="0" max="50" step="1" value="20" oninput="syncSlider('nonUnit')">
       </div>
 
       <div class="input-group">
         <label>Number of Units</label>
-        <input id="units" type="number" value="20">
+        <input id="units" type="number" value="20" oninput="calculateConstruction()">
+        <input type="range" id="unitsSlider" min="1" max="50" step="1" value="20" oninput="syncSlider('units')">
       </div>
 
       <div class="input-group">
         <label>Error Margin (%)</label>
-        <input id="error" type="number" step="0.01" value="1.1">
+        <input id="error" type="number" step="0.01" value="1.1" oninput="calculateConstruction()">
+        <input type="range" id="errorSlider" min="1" max="2" step="0.01" value="1.1" oninput="syncSlider('error')">
       </div>
+
+      <h4>Total Building Sq Ft:</h4>
+      <p id="totalSqFt">-</p>
+
+      <h4>Total Construction Cost:</h4>
+      <p id="totalCost">-</p>
 
     </div>
 
