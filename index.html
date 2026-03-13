@@ -12,7 +12,7 @@
   <!-- Sidebar -->
   <div class="sidebar">
 
-    <!-- Tabs -->
+    <!-- Tabs at the TOP of the sidebar -->
     <div class="tabs">
       <button class="tab-button active" onclick="switchTab('rent')">Rent Calculator</button>
       <button class="tab-button" onclick="switchTab('construction')">Construction Calculator</button>
@@ -20,6 +20,7 @@
 
     <!-- Rent Calculator -->
     <div id="rent-calculator" class="calculator active">
+
       <h3>Rent Calculator</h3>
 
       <div class="input-group">
@@ -81,10 +82,12 @@
         <input id="costStep" type="number" value="100000">
         <input type="range" id="costStepSlider" min="1000" max="1000000" step="1000" value="100000">
       </div>
+
     </div>
 
     <!-- Construction Calculator -->
     <div id="construction-calculator" class="calculator">
+
       <h3>Construction Calculator</h3>
 
       <div class="input-group">
@@ -122,21 +125,21 @@
 
       <h4>Total Construction Cost:</h4>
       <p id="totalCost">-</p>
+
     </div>
 
   </div>
 
   <!-- Main Area -->
   <div class="main">
-    <div class="table-wrapper" id="tableWrapper">
-      <div id="virtual-padding-top"></div>
-      <table id="rentTable"></table>
-      <div id="virtual-padding-bottom"></div>
+    <div id="tableWrapper" style="position: relative; width: 100%; height: 80vh; overflow: auto;">
+      <table id="rentTable" style="position: relative;"></table>
     </div>
   </div>
 
 </div>
 
+<!-- Tooltip element -->
 <div id="tooltip" class="tooltip"></div>
 
 <script src="script.js"></script>
