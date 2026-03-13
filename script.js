@@ -13,11 +13,22 @@ function switchTab(tab) {
 }
 
 // Sync slider with input (works for both directions)
+// Sync slider and input
 function syncSlider(inputId) {
   const input = document.getElementById(inputId);
   const slider = document.getElementById(inputId + 'Slider');
-  input.value = slider.value;
-  updateCalculators();
+
+  // Whenever slider moves, update input and calculators
+  slider.oninput = () => {
+    input.value = slider.value;
+    updateCalculators();
+  };
+
+  // Whenever input changes, update slider and calculators
+  input.oninput = () => {
+    slider.value = input.value;
+    updateCalculators();
+  };
 }
 
 // Update calculators based on active tab
