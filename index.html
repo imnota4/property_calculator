@@ -12,7 +12,7 @@
   <!-- Sidebar -->
   <div class="sidebar">
 
-    <!-- Tabs at the TOP of the sidebar -->
+    <!-- Tabs -->
     <div class="tabs">
       <button class="tab-button active" onclick="switchTab('rent')">Rent Calculator</button>
       <button class="tab-button" onclick="switchTab('construction')">Construction Calculator</button>
@@ -20,7 +20,6 @@
 
     <!-- Rent Calculator -->
     <div id="rent-calculator" class="calculator active">
-
       <h3>Rent Calculator</h3>
 
       <div class="input-group">
@@ -87,7 +86,6 @@
 
     <!-- Construction Calculator -->
     <div id="construction-calculator" class="calculator">
-
       <h3>Construction Calculator</h3>
 
       <div class="input-group">
@@ -132,14 +130,13 @@
 
   <!-- Main Area -->
   <div class="main">
-    <div id="tableWrapper" style="position: relative; width: 100%; height: 80vh; overflow: auto;">
-      <table id="rentTable" style="position: relative;"></table>
+    <div id="tableWrapper">
+      <table id="rentTable"></table>
     </div>
   </div>
 
 </div>
 
-<!-- Tooltip element -->
 <div id="tooltip" class="tooltip"></div>
 
 <script src="script.js"></script>
