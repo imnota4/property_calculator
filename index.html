@@ -129,7 +129,12 @@
 
   <!-- Main Area -->
   <div class="main">
-    <div class="table-wrapper">
+    <!-- Fake scrollbar always visible -->
+    <div class="fake-scrollbar" id="fakeScrollbar">
+      <div style="width:2000px;"></div> <!-- width will expand dynamically if needed -->
+    </div>
+
+    <div class="table-wrapper" id="tableWrapper">
       <table id="rentTable"></table>
     </div>
   </div>
