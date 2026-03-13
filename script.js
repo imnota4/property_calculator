@@ -7,7 +7,7 @@ function debounce(func, delay) {
   }
 }
 
-const debouncedUpdateCalculators = debounce(updateCalculators, 200);
+const debouncedUpdateCalculators = debounce(updateCalculators, 100);
 
 // --- Tab Switching ---
 function switchTab(tab) {
@@ -25,23 +25,13 @@ function switchTab(tab) {
   debouncedUpdateCalculators();
 }
 
-// --- Sync input boxes with sliders ---
+// --- Input / Slider Sync ---
 function setupInputSlider(inputId) {
   const input = document.getElementById(inputId);
   const slider = document.getElementById(inputId + 'Slider');
 
-  function update() {
-    slider.value = input.value;
-    debouncedUpdateCalculators();
-  }
-
-  function updateFromSlider() {
-    input.value = slider.value;
-    debouncedUpdateCalculators();
-  }
-
-  input.oninput = update;
-  slider.oninput = updateFromSlider;
+  input.oninput = () => { slider.value = input.value; debouncedUpdateCalculators(); };
+  slider.oninput = () => { input.value = slider.value; debouncedUpdateCalculators(); };
 }
 
 [
@@ -66,18 +56,6 @@ document.querySelectorAll('label[data-tooltip]').forEach(label => {
   });
 });
 
-// --- Virtualization config ---
-const rowHeight = 30;
-const buffer = 5;
-let tableData = [];
-
-const tableWrapper = document.getElementById('tableWrapper');
-const table = document.getElementById('rentTable');
-const padTop = document.getElementById('virtual-padding-top');
-const padBottom = document.getElementById('virtual-padding-bottom');
-
-tableWrapper.addEventListener('scroll', renderVirtualTable);
-
 // --- Construction Calculator ---
 function calculateConstruction() {
   let costSqFt = parseFloat(document.getElementById("costSqFt").value);
@@ -94,75 +72,95 @@ function calculateConstruction() {
   document.getElementById("totalCost").innerText = "$" + Math.round(totalCost).toLocaleString();
 }
 
-// --- Generate table data ---
-function generateTableData() {
-  let interest = parseFloat(document.getElementById("interest").value) / 100;
-  let years = parseFloat(document.getElementById("years").value);
-  let vacancy = parseFloat(document.getElementById("vacancy").value) / 100;
-  let grant = parseFloat(document.getElementById("grant").value);
+// --- Virtualization settings ---
+const rowHeight = 30;   // px
+const colWidth = 80;    // px
+const buffer = 5;       // rows/cols buffer
 
-  let resMin = parseInt(document.getElementById("resMin").value);
-  let resMax = parseInt(document.getElementById("resMax").value);
-  let resStep = parseInt(document.getElementById("resStep").value);
+const tableWrapper = document.getElementById('tableWrapper');
+const table = document.getElementById('rentTable');
 
-  let costMin = parseInt(document.getElementById("costMin").value);
-  let costMax = parseInt(document.getElementById("costMax").value);
-  let costStep = parseInt(document.getElementById("costStep").value);
-
-  const months = years * 12;
-  tableData = [];
-
-  for (let cost = costMin; cost <= costMax; cost += costStep) {
-    let bondPrincipal = Math.max(0, cost - grant);
-    let totalInterest = bondPrincipal * interest * years;
-    let totalCost = bondPrincipal + totalInterest;
-
-    let row = [cost];
-    for (let r = resMin; r <= resMax; r += resStep) {
-      let effectiveResidents = r * (1 - vacancy);
-      let rent = Math.round(totalCost / months / effectiveResidents);
-      row.push(rent);
-    }
-    tableData.push(row);
-  }
+// --- Lazy rent computation ---
+function computeRent(cost, residents, interest, years, vacancy, grant) {
+  const bond = Math.max(0, cost - grant);
+  const totalInterest = bond * interest * years;
+  const totalCost = bond + totalInterest;
+  const effectiveResidents = residents * (1 - vacancy);
+  return Math.round(totalCost / (years * 12) / effectiveResidents);
 }
 
-// --- Render virtualized rows ---
+// --- Full render for visible slice ---
 function renderVirtualTable() {
-  if (!tableData.length) return;
-
   const scrollTop = tableWrapper.scrollTop;
-  const visibleRows = Math.ceil(tableWrapper.clientHeight / rowHeight) + buffer * 2;
-  const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - buffer);
-  const endRow = Math.min(tableData.length, startRow + visibleRows);
+  const scrollLeft = tableWrapper.scrollLeft;
+  const visibleRows = Math.ceil(tableWrapper.clientHeight / rowHeight) + buffer*2;
+  const visibleCols = Math.ceil(tableWrapper.clientWidth / colWidth) + buffer*2;
+
+  // Read input values
+  const interest = parseFloat(document.getElementById("interest").value)/100;
+  const years = parseFloat(document.getElementById("years").value);
+  const vacancy = parseFloat(document.getElementById("vacancy").value)/100;
+  const grant = parseFloat(document.getElementById("grant").value);
+
+  const resMin = parseInt(document.getElementById("resMin").value);
+  const resMax = parseInt(document.getElementById("resMax").value);
+  const resStep = parseInt(document.getElementById("resStep").value);
+
+  const costMin = parseInt(document.getElementById("costMin").value);
+  const costMax = parseInt(document.getElementById("costMax").value);
+  const costStep = parseInt(document.getElementById("costStep").value);
+
+  const totalRows = Math.floor((costMax-costMin)/costStep) + 1;
+  const totalCols = Math.floor((resMax-resMin)/resStep) + 1;
+
+  const firstVisibleRow = Math.max(0, Math.floor(scrollTop/rowHeight)-buffer);
+  const lastVisibleRow = Math.min(totalRows, firstVisibleRow + visibleRows);
+
+  const firstVisibleCol = Math.max(0, Math.floor(scrollLeft/colWidth)-buffer);
+  const lastVisibleCol = Math.min(totalCols, firstVisibleCol + visibleCols);
 
   table.innerHTML = "";
 
   // Header
   const headerRow = document.createElement("tr");
-  const resMin = parseInt(document.getElementById("resMin").value);
-  const resMax = parseInt(document.getElementById("resMax").value);
-  const resStep = parseInt(document.getElementById("resStep").value);
-
-  headerRow.innerHTML = "<th>Property Cost</th>" +
-    Array.from({ length: Math.floor((resMax - resMin) / resStep) + 1 }, (_, i) => `<th>${resMin + i * resStep}</th>`).join('');
+  headerRow.style.height = rowHeight + "px";
+  headerRow.innerHTML = "<th style='width:"+colWidth+"px;'>Property Cost</th>";
+  for (let c = firstVisibleCol; c < lastVisibleCol; c++) {
+    const res = resMin + c*resStep;
+    headerRow.innerHTML += `<th style="width:${colWidth}px;">${res}</th>`;
+  }
   table.appendChild(headerRow);
 
-  for (let r = startRow; r < endRow; r++) {
-    const rowEl = document.createElement("tr");
-    rowEl.innerHTML = `<th>$${tableData[r][0].toLocaleString()}</th>` +
-      tableData[r].slice(1).map(v => `<td style="background:${v<=250?"#4CAF50":v<=625?"#FFD54F":v<=1000?"#FB8C00":"#E53935"}">$${v}</td>`).join('');
-    table.appendChild(rowEl);
+  // Rows
+  for (let r = firstVisibleRow; r < lastVisibleRow; r++) {
+    const cost = costMin + r*costStep;
+    const tr = document.createElement("tr");
+    tr.style.height = rowHeight + "px";
+    tr.innerHTML = `<th style='width:${colWidth}px;'>$${cost.toLocaleString()}</th>`;
+    for (let c = firstVisibleCol; c < lastVisibleCol; c++) {
+      const residents = resMin + c*resStep;
+      const rent = computeRent(cost, residents, interest, years, vacancy, grant);
+      let color;
+      if (rent <= 250) color="#4CAF50";
+      else if (rent <= 625) color="#FFD54F";
+      else if (rent <= 1000) color="#FB8C00";
+      else color="#E53935";
+
+      tr.innerHTML += `<td style="width:${colWidth}px;background:${color}">$${rent}</td>`;
+    }
+    table.appendChild(tr);
   }
 
-  padTop.style.height = startRow * rowHeight + "px";
-  padBottom.style.height = (tableData.length - endRow) * rowHeight + "px";
+  // Padding to simulate full table height/width
+  table.style.paddingTop = firstVisibleRow*rowHeight + "px";
+  table.style.paddingBottom = (totalRows - lastVisibleRow)*rowHeight + "px";
+  table.style.paddingLeft = firstVisibleCol*colWidth + "px";
+  table.style.paddingRight = (totalCols - lastVisibleCol)*colWidth + "px";
 }
 
 // --- Update calculators ---
 function updateCalculators() {
   if (document.getElementById('rent-calculator').classList.contains('active')) {
-    generateTableData();
     renderVirtualTable();
   }
   if (document.getElementById('construction-calculator').classList.contains('active')) {
@@ -170,5 +168,8 @@ function updateCalculators() {
   }
 }
 
-// --- Initial ---
+// --- Scroll listener ---
+tableWrapper.addEventListener('scroll', () => { requestAnimationFrame(renderVirtualTable); });
+
+// --- Initial update ---
 debouncedUpdateCalculators();
