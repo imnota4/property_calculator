@@ -1,10 +1,21 @@
-@@ -10,52 +10,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Municipal Bond Housing Calculator</title>
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
 
 <div class="container">
 
 <h2>Municipal Bond Housing Calculator</h2>
 
 <div class="controls">
+
+
 
 <label>Interest Rate (%)</label>
 <input id="interest" type="number" value="3">
@@ -17,9 +28,7 @@
 
 <label>Vacancy Rate (%)</label>
 <input id="vacancy" type="number" value="5">
-
 <br><br>
-
 <label>Residents Min</label>
 <input id="resMin" type="number" value="1">
 
@@ -45,12 +54,15 @@
 
 <button onclick="generate()">Generate Table</button>
 
-
 </div>
-
 
 <div class="table-wrapper">
 <table id="rentTable"></table>
 </div>
 
 </div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
