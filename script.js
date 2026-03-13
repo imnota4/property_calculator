@@ -12,34 +12,15 @@ function switchTab(tab) {
   }
 }
 
-// Sync sliders and number inputs
-function syncSlider(inputId, sliderId) {
+// Sync slider with input (works for both directions)
+function syncSlider(inputId) {
   const input = document.getElementById(inputId);
-  const slider = document.getElementById(sliderId);
-
-  slider.addEventListener('input', () => {
-    input.value = slider.value;
-    updateCalculators();
-  });
-
-  input.addEventListener('input', () => {
-    slider.value = input.value;
-    updateCalculators();
-  });
+  const slider = document.getElementById(inputId + 'Slider');
+  input.value = slider.value;
+  updateCalculators();
 }
 
-// Setup all synced sliders
-syncSlider('interest','interest-slider');
-syncSlider('years','years-slider');
-syncSlider('vacancy','vacancy-slider');
-syncSlider('grant','grant-slider');
-
-syncSlider('costSqFt','costSqFt-slider');
-syncSlider('sqFtUnit','sqFtUnit-slider');
-syncSlider('nonUnit','nonUnit-slider');
-syncSlider('error','error-slider');
-
-// Update both calculators
+// Update calculators based on active tab
 function updateCalculators() {
   if(document.getElementById('rent-calculator').classList.contains('active')){
     generateRentTable();
