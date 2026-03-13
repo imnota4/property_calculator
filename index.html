@@ -81,7 +81,6 @@
         <input id="costStep" type="number" value="100000">
         <input type="range" id="costStepSlider" min="1000" max="1000000" step="1000" value="100000">
       </div>
-
     </div>
 
     <!-- Construction Calculator -->
@@ -129,19 +128,16 @@
 
   <!-- Main Area -->
   <div class="main">
-    <!-- Fake scrollbar always visible -->
-    <div class="fake-scrollbar" id="fakeScrollbar">
-      <div style="width:2000px;"></div> <!-- width will expand dynamically if needed -->
-    </div>
-
+    <div class="fake-scrollbar" id="fakeScrollbar"><div id="fakeInner"></div></div>
     <div class="table-wrapper" id="tableWrapper">
+      <div id="virtual-padding-top"></div>
       <table id="rentTable"></table>
+      <div id="virtual-padding-bottom"></div>
     </div>
   </div>
 
 </div>
 
-<!-- Tooltip element -->
 <div id="tooltip" class="tooltip"></div>
 
 <script src="script.js"></script>
