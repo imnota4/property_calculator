@@ -1,66 +1,59 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-<title>Municipal Bond Housing Calculator</title>
-<link rel="stylesheet" href="style.css">
+    <title>Municipal Bond Housing Calculator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="container">
+    <h2>Municipal Bond Housing Calculator</h2>
 
-<h2>Municipal Bond Housing Calculator</h2>
+    <div class="controls">
+        <label>Interest Rate (%)</label>
+        <input id="interest" type="number" value="3">
 
-<div class="controls">
+        <label>Bond Duration (years)</label>
+        <input id="years" type="number" value="30">
 
-<label>Interest Rate (%)</label>
-<input id="interest" type="number" value="3">
+        <label>Vacancy Rate (%)</label>
+        <input id="vacancy" type="number" value="5">
 
-<label>Bond Duration (years)</label>
-<input id="years" type="number" value="30">
+        <label>Government Grant ($)</label>
+        <input id="grant" type="number" value="0">
 
-<label>Vacancy Rate (%)</label>
-<input id="vacancy" type="number" value="5">
+        <br><br>
 
-<label>Government Grant ($)</label>
-<input id="grant" type="number" value="0">
+        <label>Residents Min</label>
+        <input id="resMin" type="number" value="1">
 
-<br><br>
+        <label>Residents Max</label>
+        <input id="resMax" type="number" value="50">
 
-<label>Residents Min</label>
-<input id="resMin" type="number" value="1">
+        <label>Resident Increment</label>
+        <input id="resStep" type="number" value="1">
 
-<label>Residents Max</label>
-<input id="resMax" type="number" value="50">
+        <br><br>
 
-<label>Resident Increment</label>
-<input id="resStep" type="number" value="1">
+        <label>Property Cost Min ($)</label>
+        <input id="costMin" type="number" value="100000">
 
-<br><br>
+        <label>Property Cost Max ($)</label>
+        <input id="costMax" type="number" value="5000000">
 
-<label>Property Cost Min ($)</label>
-<input id="costMin" type="number" value="100000">
+        <label>Cost Increment ($)</label>
+        <input id="costStep" type="number" value="100000">
 
-<label>Property Cost Max ($)</label>
-<input id="costMax" type="number" value="5000000">
+        <br><br>
 
-<label>Cost Increment ($)</label>
-<input id="costStep" type="number" value="100000">
+        <button onclick="generate()">Generate Table</button>
+    </div>
 
-<br><br>
-
-<button onclick="generate()">Generate Table</button>
-
-</div>
-
-<div class="table-wrapper">
-<table id="rentTable"></table>
-</div>
-
+    <div class="table-wrapper">
+        <table id="rentTable"></table>
+    </div>
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
