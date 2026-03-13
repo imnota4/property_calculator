@@ -1,56 +1,56 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-<title>Municipal Bond Housing Calculator</title>
-<link rel="stylesheet" href="style.css">
-</head>
-
-<body>
+@@ -10,52 +10,42 @@
 
 <div class="container">
 
-<h2>Housing Bond Financing Calculator</h2>
+<h2>Municipal Bond Housing Calculator</h2>
 
-<div class="inputs">
+<div class="controls">
 
-<label>Total Construction Cost ($)</label>
-<input id="constructionCost" type="number" value="6000000">
+<label>Interest Rate (%)</label>
+<input id="interest" type="number" value="3">
 
-<label>Government Grant ($)</label>
-<input id="grant" type="number" value="0">
+<label>Bond Duration (years)</label>
+<input id="years" type="number" value="30">
 
-<label>Bond Interest Rate (%)</label>
-<input id="interestRate" type="number" value="4">
+<label>Error Margin</label>
+<input id="error" type="number" step="0.01" value="1.1">
 
-<label>Bond Term (Years)</label>
-<input id="termYears" type="number" value="30">
-
-<label>Number of Units</label>
-<input id="units" type="number" value="20">
+<label>Vacancy Rate (%)</label>
+<input id="vacancy" type="number" value="5">
 
 <br><br>
 
-<button onclick="calculate()">Calculate</button>
+<label>Residents Min</label>
+<input id="resMin" type="number" value="1">
+
+<label>Residents Max</label>
+<input id="resMax" type="number" value="50">
+
+<label>Resident Increment</label>
+<input id="resStep" type="number" value="1">
+
+<br><br>
+
+<label>Property Cost Min ($)</label>
+<input id="costMin" type="number" value="100000">
+
+<label>Property Cost Max ($)</label>
+<input id="costMax" type="number" value="5000000">
+
+<label>Cost Increment ($)</label>
+<input id="costStep" type="number" value="100000">
+
+<br><br>
+
+
+<button onclick="generate()">Generate Table</button>
+
 
 </div>
 
-<div class="results">
 
-<h3>Bond Financing Required</h3>
-<p id="bondAmount">-</p>
-
-<h3>Monthly Bond Payment</h3>
-<p id="monthlyPayment">-</p>
-
-<h3>Required Rent Per Unit</h3>
-<p id="rentPerUnit">-</p>
-
+<div class="table-wrapper">
+<table id="rentTable"></table>
 </div>
 
 </div>
-
-<script src="script.js"></script>
-
-</body>
-</html>
