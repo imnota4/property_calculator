@@ -54,24 +54,24 @@ body {
 
 /* --- Input Groups --- */
 .input-group {
-  display: flex;
-  align-items: center;
+  display: flex;              
+  align-items: center;        
   margin-bottom: 10px;
-  gap: 10px;
+  gap: 10px;                  
 }
 
 .input-group label {
-  width: 150px;
+  width: 150px;                
   text-align: right;
   font-weight: bold;
 }
 
 .input-group input[type="number"] {
-  width: 80px;
+  width: 80px;                 
 }
 
 .input-group input[type="range"] {
-  flex: 1;
+  flex: 1;                     
 }
 
 /* --- Main Area --- */
@@ -79,25 +79,38 @@ body {
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
+  overflow: auto; /* allow scrollbars */
 }
 
 /* --- Table Styling --- */
+#tableWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
 #rentTable {
   position: relative;
   border-collapse: collapse;
+  width: max-content;
 }
 
-#rentTable th, #rentTable td {
+#rentTable th,
+#rentTable td {
+  width: 80px;           
+  min-width: 80px;
+  max-width: 80px;
+  box-sizing: border-box;
+  text-align: center;
   border: 1px solid #ccc;
   padding: 5px;
-  text-align: center;
-  box-sizing: border-box;
 }
 
 /* --- Tooltip Styling --- */
 .tooltip {
   position: fixed;
-  pointer-events: none;
+  pointer-events: none;       
   background: rgba(0,0,0,0.8);
   color: #fff;
   padding: 5px 8px;
