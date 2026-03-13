@@ -77,15 +77,17 @@ body {
 /* --- Main Area --- */
 .main {
   flex: 1;
-  padding: 20px;
+  padding: 25px;
   box-sizing: border-box;
   overflow-x: auto;
+  scroll-behavior: smooth;
 }
 
 /* --- Table Styling --- */
 table {
   border-collapse: collapse;
   width: 100%;
+  min-width: max-content;  /* Ensures table can grow wider than container */
 }
 
 th, td {
