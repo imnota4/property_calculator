@@ -75,19 +75,19 @@ body {
 }
 
 /* --- Main Area --- */
+/* Make the table scrollable horizontally */
 .main {
   flex: 1;
   padding: 25px;
   box-sizing: border-box;
   overflow-x: auto;
-  scroll-behavior: smooth;
 }
 
 /* --- Table Styling --- */
 table {
   border-collapse: collapse;
-  width: 100%;
-  min-width: max-content;  /* Ensures table can grow wider than container */
+  width: auto;          /* let table width expand naturally */
+  min-width: 100%;      /* at least full container width */
 }
 
 th, td {
