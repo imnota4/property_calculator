@@ -7,7 +7,7 @@ function debounce(func, delay) {
   }
 }
 
-// --- Use debounced update function ---
+// --- Debounced update function ---
 const debouncedUpdateCalculators = debounce(updateCalculators, 200);
 
 // --- Tab Switching ---
@@ -130,6 +130,23 @@ function calculateConstruction() {
   document.getElementById("totalSqFt").innerText = Math.round(totalSqFt).toLocaleString() + " sq ft";
   document.getElementById("totalCost").innerText = "$" + Math.round(totalCost).toLocaleString();
 }
+
+// --- Tooltip ---
+const tooltip = document.getElementById('tooltip');
+
+document.querySelectorAll('label[data-tooltip]').forEach(label => {
+  label.addEventListener('mouseenter', e => {
+    tooltip.innerText = label.getAttribute('data-tooltip');
+    tooltip.style.display = 'block';
+  });
+  label.addEventListener('mousemove', e => {
+    tooltip.style.top = (e.clientY + 15) + 'px';
+    tooltip.style.left = (e.clientX + 15) + 'px';
+  });
+  label.addEventListener('mouseleave', e => {
+    tooltip.style.display = 'none';
+  });
+});
 
 // --- Initial update ---
 debouncedUpdateCalculators();
