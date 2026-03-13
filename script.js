@@ -1,4 +1,4 @@
-// Tab switching
+// --- Tab Switching ---
 function switchTab(tab) {
   document.querySelectorAll('.calculator').forEach(c => c.classList.remove('active'));
   document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
@@ -10,28 +10,34 @@ function switchTab(tab) {
     document.getElementById('construction-calculator').classList.add('active');
     document.querySelector('.tab-button:nth-child(2)').classList.add('active');
   }
+
+  updateCalculators();
 }
 
-// Sync slider with input (works for both directions)
-// Sync slider and input
-function syncSlider(inputId) {
+// --- Sync input boxes with sliders ---
+function syncInputWithSlider(inputId) {
   const input = document.getElementById(inputId);
   const slider = document.getElementById(inputId + 'Slider');
 
-  // Whenever slider moves, update input and calculators
   slider.oninput = () => {
     input.value = slider.value;
     updateCalculators();
   };
 
-  // Whenever input changes, update slider and calculators
   input.oninput = () => {
     slider.value = input.value;
     updateCalculators();
   };
 }
 
-// Update calculators based on active tab
+// All synced inputs
+[
+  'interest','years','vacancy','grant',
+  'resMin','resMax','resStep','costMin','costMax','costStep',
+  'costSqFt','sqFtUnit','nonUnit','units','error'
+].forEach(syncInputWithSlider);
+
+// --- Update both calculators ---
 function updateCalculators() {
   if(document.getElementById('rent-calculator').classList.contains('active')){
     generateRentTable();
@@ -41,7 +47,7 @@ function updateCalculators() {
   }
 }
 
-// Rent Table Generator
+// --- Rent Table Generator ---
 function getColor(rent){
   if(rent <= 250) return "#4CAF50";
   if(rent <= 625) return "#FFD54F";
@@ -94,7 +100,7 @@ function generateRentTable() {
   }
 }
 
-// Construction Calculator
+// --- Construction Calculator ---
 function calculateConstruction(){
   let costSqFt = parseFloat(document.getElementById("costSqFt").value);
   let sqFtUnit = parseFloat(document.getElementById("sqFtUnit").value);
@@ -110,5 +116,5 @@ function calculateConstruction(){
   document.getElementById("totalCost").innerText = "$" + Math.round(totalCost).toLocaleString();
 }
 
-// Initial update
+// --- Initial update ---
 updateCalculators();
