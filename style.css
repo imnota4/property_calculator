@@ -77,17 +77,17 @@ body {
 /* --- Main Area --- */
 /* Make the table scrollable horizontally */
 .main {
-  flex: 1;
+  flex: 1 1 auto;        /* allow flex grow/shrink */
   padding: 25px;
   box-sizing: border-box;
-  overflow-x: auto;
+  overflow-x: auto;      /* scroll if content overflows */
 }
 
 /* --- Table Styling --- */
 table {
   border-collapse: collapse;
-  width: auto;          /* let table width expand naturally */
-  min-width: 100%;      /* at least full container width */
+  width: max-content;    /* table width = content width */
+  min-width: 100%;       /* at least fill container */
 }
 
 th, td {
