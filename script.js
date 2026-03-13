@@ -1,3 +1,15 @@
+// --- Debounce helper ---
+function debounce(func, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  }
+}
+
+// --- Use debounced update function ---
+const debouncedUpdateCalculators = debounce(updateCalculators, 200);
+
 // --- Tab Switching ---
 function switchTab(tab) {
   document.querySelectorAll('.calculator').forEach(c => c.classList.remove('active'));
@@ -11,7 +23,7 @@ function switchTab(tab) {
     document.querySelector('.tab-button:nth-child(2)').classList.add('active');
   }
 
-  updateCalculators();
+  debouncedUpdateCalculators();
 }
 
 // --- Sync input boxes with sliders ---
@@ -21,12 +33,12 @@ function setupInputSlider(inputId) {
 
   function update() {
     slider.value = input.value;
-    updateCalculators();
+    debouncedUpdateCalculators();
   }
 
   function updateFromSlider() {
     input.value = slider.value;
-    updateCalculators();
+    debouncedUpdateCalculators();
   }
 
   input.oninput = update;
@@ -120,4 +132,4 @@ function calculateConstruction() {
 }
 
 // --- Initial update ---
-updateCalculators();
+debouncedUpdateCalculators();
