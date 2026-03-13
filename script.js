@@ -3,12 +3,9 @@
     if (rent <= 625) return "#FFD54F";
     if (rent <= 1000) return "#FB8C00";
     return "#E53935";
-
-
 }
 
 function generate() {
-
     let interest = parseFloat(document.getElementById("interest").value) / 100;
     let years = parseFloat(document.getElementById("years").value);
     let vacancy = parseFloat(document.getElementById("vacancy").value) / 100;
@@ -24,7 +21,6 @@ function generate() {
 
     let months = years * 12;
 
-
     let table = document.getElementById("rentTable");
     table.innerHTML = "";
 
@@ -38,25 +34,18 @@ function generate() {
 
     // Table rows
     for (let cost = costMin; cost <= costMax; cost += costStep) {
-
         let bondPrincipal = Math.max(0, cost - grant);
-
-        // Coupon bond: total interest over life
-        let totalInterest = bondPrincipal * interest * years;
+        let totalInterest = bondPrincipal * interest * years; // coupon bond
         let totalCost = bondPrincipal + totalInterest;
 
         let row = "<tr>";
         row += "<th>$" + cost.toLocaleString() + "</th>";
 
         for (let residents = resMin; residents <= resMax; residents += resStep) {
-
             let effectiveResidents = residents * (1 - vacancy);
-
             let rent = totalCost / months / effectiveResidents;
             rent = Math.round(rent);
-
             let color = getColor(rent);
-
             row += `<td style="background:${color}">$${rent}</td>`;
         }
 
