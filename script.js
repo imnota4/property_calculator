@@ -1,4 +1,4 @@
-// --- Debounce ---
+// --- Debounce helper ---
 function debounce(func, delay) {
   let timeout;
   return function(...args) {
@@ -6,27 +6,39 @@ function debounce(func, delay) {
     timeout = setTimeout(() => func.apply(this, args), delay);
   }
 }
-const debouncedUpdateCalculators = debounce(updateCalculators, 100);
 
-// --- Tab Switching ---
-function switchTab(tab) {
-  document.querySelectorAll('.calculator').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-  if(tab==='rent'){document.getElementById('rent-calculator').classList.add('active');document.querySelector('.tab-button:nth-child(1)').classList.add('active');}
-  else{document.getElementById('construction-calculator').classList.add('active');document.querySelector('.tab-button:nth-child(2)').classList.add('active');}
-  debouncedUpdateCalculators();
+// --- Debounced update ---
+const debouncedUpdate = debounce(updateCalculators, 100);
+
+// --- Tab switching ---
+function switchTab(tab){
+  document.querySelectorAll('.calculator').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
+  if(tab==='rent'){
+    document.getElementById('rent-calculator').classList.add('active');
+    document.querySelector('.tab-button:nth-child(1)').classList.add('active');
+  }else{
+    document.getElementById('construction-calculator').classList.add('active');
+    document.querySelector('.tab-button:nth-child(2)').classList.add('active');
+  }
+  debouncedUpdate();
 }
 
-// --- Input / Slider Sync ---
-function setupInputSlider(inputId){
-  const input=document.getElementById(inputId);
-  const slider=document.getElementById(inputId+'Slider');
-  input.oninput=()=>{slider.value=input.value;debouncedUpdateCalculators();};
-  slider.oninput=()=>{input.value=slider.value;debouncedUpdateCalculators();};
+// --- Sync inputs & sliders ---
+function setupInputSlider(id){
+  const input=document.getElementById(id);
+  const slider=document.getElementById(id+'Slider');
+  input.oninput=function(){slider.value=input.value;debouncedUpdate();}
+  slider.oninput=function(){input.value=slider.value;debouncedUpdate();}
 }
-['interest','years','vacancy','grant','resMin','resMax','resStep','costMin','costMax','costStep','costSqFt','sqFtUnit','nonUnit','units','error'].forEach(setupInputSlider);
 
-// --- Tooltip ---
+[
+  'interest','years','vacancy','grant',
+  'resMin','resMax','resStep','costMin','costMax','costStep',
+  'costSqFt','sqFtUnit','nonUnit','units','error'
+].forEach(setupInputSlider);
+
+// --- Tooltips ---
 const tooltip=document.getElementById('tooltip');
 document.querySelectorAll('label[data-tooltip]').forEach(label=>{
   label.addEventListener('mouseenter',()=>{tooltip.innerText=label.dataset.tooltip;tooltip.style.display='block';});
@@ -36,34 +48,33 @@ document.querySelectorAll('label[data-tooltip]').forEach(label=>{
 
 // --- Construction Calculator ---
 function calculateConstruction(){
-  const costSqFt=parseFloat(document.getElementById("costSqFt").value);
-  const sqFtUnit=parseFloat(document.getElementById("sqFtUnit").value);
-  const nonUnit=parseFloat(document.getElementById("nonUnit").value)/100;
-  const units=parseFloat(document.getElementById("units").value);
-  const error=parseFloat(document.getElementById("error").value)/100;
-  const totalSqFt=(sqFtUnit*units)/(1-nonUnit);
-  const totalCost=totalSqFt*costSqFt*(1+error);
+  let costSqFt=parseFloat(document.getElementById("costSqFt").value);
+  let sqFtUnit=parseFloat(document.getElementById("sqFtUnit").value);
+  let nonUnit=parseFloat(document.getElementById("nonUnit").value)/100;
+  let units=parseFloat(document.getElementById("units").value);
+  let error=parseFloat(document.getElementById("error").value)/100;
+  let unitSpace=sqFtUnit*units;
+  let totalSqFt=unitSpace/(1-nonUnit);
+  let totalCost=totalSqFt*costSqFt*(1+error);
   document.getElementById("totalSqFt").innerText=Math.round(totalSqFt).toLocaleString()+" sq ft";
   document.getElementById("totalCost").innerText="$"+Math.round(totalCost).toLocaleString();
 }
 
-// --- Virtualization Settings ---
+// --- Rent Table Virtualization ---
+const tableWrapper=document.getElementById('tableWrapper');
+const table=document.getElementById('rentTable');
 const rowHeight=30;
 const colWidth=80;
 const buffer=5;
-const tableWrapper=document.getElementById('tableWrapper');
-const table=document.getElementById('rentTable');
 
-// --- Lazy Rent Computation ---
 function computeRent(cost,residents,interest,years,vacancy,grant){
-  const bond=Math.max(0,cost-grant);
-  const totalInterest=bond*interest*years;
-  const totalCost=bond+totalInterest;
+  const principal=Math.max(0,cost-grant);
+  const totalInterest=principal*interest*years;
+  const totalCost=principal+totalInterest;
   const effectiveResidents=residents*(1-vacancy);
-  return Math.round(totalCost/(years*12)/effectiveResidents);
+  return Math.round(totalCost/(years*12*effectiveResidents));
 }
 
-// --- Virtual Table Render ---
 function renderVirtualTable(){
   const interest=parseFloat(document.getElementById("interest").value)/100;
   const years=parseFloat(document.getElementById("years").value);
@@ -92,22 +103,25 @@ function renderVirtualTable(){
 
   table.innerHTML="";
 
-  // Header row
+  // Header
   const headerTr=document.createElement("tr");
-  headerTr.style.position="absolute";
+  headerTr.style.position="sticky";
   headerTr.style.top="0px";
-  headerTr.style.left=(firstCol*colWidth)+"px";
+  headerTr.style.left="0px";
   headerTr.style.height=rowHeight+"px";
   headerTr.innerHTML="<th style='width:"+colWidth+"px;'>Property Cost</th>";
-  for(let c=firstCol;c<lastCol;c++){const res=resMin+c*resStep;headerTr.innerHTML+=`<th style="width:${colWidth}px;">${res}</th>`;}
+  for(let c=firstCol;c<lastCol;c++){
+    const res=resMin+c*resStep;
+    headerTr.innerHTML+=`<th style="width:${colWidth}px;">${res}</th>`;
+  }
   table.appendChild(headerTr);
 
-  // Rows
+  // Data Rows
   for(let r=firstRow;r<lastRow;r++){
     const cost=costMin+r*costStep;
     const tr=document.createElement("tr");
     tr.style.position="absolute";
-    tr.style.top=(r*rowHeight)+"px";
+    tr.style.top=(r*rowHeight+rowHeight)+"px";
     tr.style.left="0px";
     tr.style.height=rowHeight+"px";
     tr.innerHTML=`<th style="width:${colWidth}px;">$${cost.toLocaleString()}</th>`;
@@ -125,14 +139,27 @@ function renderVirtualTable(){
   }
 }
 
-// --- Update Calculators ---
+// --- Scroll listener ---
+let ticking=false;
+tableWrapper.addEventListener('scroll',()=>{
+  if(!ticking){
+    requestAnimationFrame(()=>{
+      renderVirtualTable();
+      ticking=false;
+    });
+    ticking=true;
+  }
+});
+
+// --- Update calculators ---
 function updateCalculators(){
-  if(document.getElementById('rent-calculator').classList.contains('active')) renderVirtualTable();
-  if(document.getElementById('construction-calculator').classList.contains('active')) calculateConstruction();
+  if(document.getElementById('rent-calculator').classList.contains('active')){
+    renderVirtualTable();
+  }
+  if(document.getElementById('construction-calculator').classList.contains('active')){
+    calculateConstruction();
+  }
 }
 
-// --- Scroll Listener ---
-tableWrapper.addEventListener('scroll',()=>{requestAnimationFrame(renderVirtualTable);});
-
-// --- Initial Update ---
-debouncedUpdateCalculators();
+// --- Initial update ---
+debouncedUpdate();
