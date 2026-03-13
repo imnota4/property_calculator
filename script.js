@@ -1,64 +1,37 @@
-function getColor(rent){
+function calculate(){
 
-if(rent <= 250) return "#4CAF50"
-if(rent <= 625) return "#FFD54F"
-if(rent <= 1000) return "#FB8C00"
-return "#E53935"
+let constructionCost = parseFloat(document.getElementById("constructionCost").value)
+let grant = parseFloat(document.getElementById("grant").value)
+let interestRate = parseFloat(document.getElementById("interestRate").value) / 100
+let termYears = parseFloat(document.getElementById("termYears").value)
+let units = parseFloat(document.getElementById("units").value)
 
+let months = termYears * 12
+let monthlyRate = interestRate / 12
+
+// subtract grant
+let bondAmount = constructionCost - grant
+
+if(bondAmount < 0){
+bondAmount = 0
 }
 
-function generate(){
+// bond payment formula
+let monthlyPayment = bondAmount *
+(monthlyRate * Math.pow(1 + monthlyRate, months)) /
+(Math.pow(1 + monthlyRate, months) - 1)
 
-let interest = parseFloat(document.getElementById("interest").value)/100
-let years = parseFloat(document.getElementById("years").value)
-let error = parseFloat(document.getElementById("error").value)
-let vacancy = parseFloat(document.getElementById("vacancy").value)/100
+let rentPerUnit = monthlyPayment / units
 
-let resMin = parseInt(document.getElementById("resMin").value)
-let resMax = parseInt(document.getElementById("resMax").value)
-let resStep = parseInt(document.getElementById("resStep").value)
+// display results
+document.getElementById("bondAmount").innerText =
+"$" + Math.round(bondAmount).toLocaleString()
 
-let costMin = parseInt(document.getElementById("costMin").value)
-let costMax = parseInt(document.getElementById("costMax").value)
-let costStep = parseInt(document.getElementById("costStep").value)
+document.getElementById("monthlyPayment").innerText =
+"$" + Math.round(monthlyPayment).toLocaleString()
 
-let months = years * 12
-
-let table = document.getElementById("rentTable")
-table.innerHTML=""
-
-let header = "<tr><th>Property Cost</th>"
-
-for(let r=resMin;r<=resMax;r+=resStep){
-header += "<th>"+r+"</th>"
-}
-
-header += "</tr>"
-table.innerHTML += header
-
-for(let cost=costMin; cost<=costMax; cost+=costStep){
-
-let totalCost = cost * Math.pow(1+interest, years)
-
-let row = "<tr>"
-row += "<th>$"+cost.toLocaleString()+"</th>"
-
-for(let residents=resMin; residents<=resMax; residents+=resStep){
-
-let effectiveResidents = residents * (1 - vacancy)
-
-let rent = (totalCost / months / effectiveResidents) * error
-rent = Math.round(rent)
-
-let color = getColor(rent)
-
-row += `<td style="background:${color}">$${rent}</td>`
+document.getElementById("rentPerUnit").innerText =
+"$" + Math.round(rentPerUnit).toLocaleString()
 
 }
-
-row += "</tr>"
-table.innerHTML += row
-
-}
-
 }
