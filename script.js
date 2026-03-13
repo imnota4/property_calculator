@@ -7,7 +7,6 @@ function debounce(func, delay) {
   }
 }
 
-// --- Debounced update function ---
 const debouncedUpdateCalculators = debounce(updateCalculators, 200);
 
 // --- Tab Switching ---
@@ -45,22 +44,11 @@ function setupInputSlider(inputId) {
   slider.oninput = updateFromSlider;
 }
 
-// --- All synced inputs ---
 [
   'interest','years','vacancy','grant',
   'resMin','resMax','resStep','costMin','costMax','costStep',
   'costSqFt','sqFtUnit','nonUnit','units','error'
 ].forEach(setupInputSlider);
-
-// --- Update calculators ---
-function updateCalculators() {
-  if (document.getElementById('rent-calculator').classList.contains('active')) {
-    generateRentTable();
-  }
-  if (document.getElementById('construction-calculator').classList.contains('active')) {
-    calculateConstruction();
-  }
-}
 
 // --- Rent Table Generator ---
 function getColor(rent) {
@@ -133,7 +121,6 @@ function calculateConstruction() {
 
 // --- Tooltip ---
 const tooltip = document.getElementById('tooltip');
-
 document.querySelectorAll('label[data-tooltip]').forEach(label => {
   label.addEventListener('mouseenter', e => {
     tooltip.innerText = label.getAttribute('data-tooltip');
@@ -147,6 +134,27 @@ document.querySelectorAll('label[data-tooltip]').forEach(label => {
     tooltip.style.display = 'none';
   });
 });
+
+// --- Fake scrollbar sync ---
+const tableWrapper = document.getElementById('tableWrapper');
+const fakeScrollbar = document.getElementById('fakeScrollbar');
+
+fakeScrollbar.addEventListener('scroll', () => {
+  tableWrapper.scrollLeft = fakeScrollbar.scrollLeft;
+});
+tableWrapper.addEventListener('scroll', () => {
+  fakeScrollbar.scrollLeft = tableWrapper.scrollLeft;
+});
+
+// --- Update calculators ---
+function updateCalculators() {
+  if (document.getElementById('rent-calculator').classList.contains('active')) {
+    generateRentTable();
+  }
+  if (document.getElementById('construction-calculator').classList.contains('active')) {
+    calculateConstruction();
+  }
+}
 
 // --- Initial update ---
 debouncedUpdateCalculators();
