@@ -79,32 +79,41 @@ body {
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
-  overflow: auto; /* allow scrollbars */
 }
 
-/* --- Table Styling --- */
-#tableWrapper {
-  position: relative;
+/* --- Virtual Table --- */
+.table-container {
   width: 100%;
-  height: 100%;
   overflow: auto;
-}
-
-#rentTable {
   position: relative;
-  border-collapse: collapse;
-  width: max-content;
+  border: 1px solid #ccc;
+  height: 600px; /* Adjust as needed */
 }
 
-#rentTable th,
-#rentTable td {
-  width: 80px;           
+.header-row {
+  display: flex;
+  position: sticky;
+  top: 0;
+  background: #f0f0f0;
+  z-index: 2;
+  border-bottom: 2px solid #999;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 80px;
   min-width: 80px;
   max-width: 80px;
-  box-sizing: border-box;
+  height: 30px;
+  line-height: 30px;
   text-align: center;
   border: 1px solid #ccc;
-  padding: 5px;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 /* --- Tooltip Styling --- */
