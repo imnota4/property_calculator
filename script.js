@@ -140,16 +140,112 @@ function renderVirtualTable(){
       gridContainer.appendChild(cell);
     }
   }
+
+  // Sync scrollbars after every render
+  if(typeof updateScrollbars === 'function') updateScrollbars();
 }
+
+// --- Custom Scrollbars ---
+const scrollbarH = document.getElementById('scrollbarH');
+const scrollbarV = document.getElementById('scrollbarV');
+const thumbH     = document.getElementById('thumbH');
+const thumbV     = document.getElementById('thumbV');
+
+function updateScrollbars(){
+  const contentW = gridContainer.offsetWidth;
+  const contentH = gridContainer.offsetHeight;
+  const viewW    = tableWrapper.clientWidth;
+  const viewH    = tableWrapper.clientHeight;
+  const scrollLeft = tableWrapper.scrollLeft;
+  const scrollTop  = tableWrapper.scrollTop;
+
+  // Horizontal thumb
+  const trackW   = scrollbarH.clientWidth;
+  const thumbWPx = Math.max(30, trackW * (viewW / contentW));
+  const thumbXPx = (contentW > viewW) ? scrollLeft / (contentW - viewW) * (trackW - thumbWPx) : 0;
+  thumbH.style.width = thumbWPx + "px";
+  thumbH.style.left  = thumbXPx + "px";
+
+  // Vertical thumb
+  const trackH   = scrollbarV.clientHeight;
+  const thumbHPx = Math.max(30, trackH * (viewH / contentH));
+  const thumbYPx = (contentH > viewH) ? scrollTop / (contentH - viewH) * (trackH - thumbHPx) : 0;
+  thumbV.style.height = thumbHPx + "px";
+  thumbV.style.top    = thumbYPx + "px";
+}
+
+function makeDraggable(thumb, scrollbar, axis){
+  let startMouse, startScroll;
+  thumb.addEventListener('mousedown', e => {
+    e.preventDefault();
+    thumb.classList.add('dragging');
+    startMouse = axis === 'x' ? e.clientX : e.clientY;
+    startScroll = axis === 'x' ? tableWrapper.scrollLeft : tableWrapper.scrollTop;
+    const contentSize = axis === 'x' ? gridContainer.offsetWidth  : gridContainer.offsetHeight;
+    const viewSize    = axis === 'x' ? tableWrapper.clientWidth    : tableWrapper.clientHeight;
+    const trackSize   = axis === 'x' ? scrollbar.clientWidth       : scrollbar.clientHeight;
+    const thumbSize   = axis === 'x' ? thumb.offsetWidth           : thumb.offsetHeight;
+    const onMove = e => {
+      const delta = (axis === 'x' ? e.clientX : e.clientY) - startMouse;
+      const scrollRatio = delta / (trackSize - thumbSize);
+      const newScroll = startScroll + scrollRatio * (contentSize - viewSize);
+      if(axis === 'x') tableWrapper.scrollLeft = newScroll;
+      else             tableWrapper.scrollTop  = newScroll;
+      requestAnimationFrame(renderVirtualTable);
+    };
+    const onUp = () => {
+      thumb.classList.remove('dragging');
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  });
+}
+
+makeDraggable(thumbH, scrollbarH, 'x');
+makeDraggable(thumbV, scrollbarV, 'y');
+
+// Click-on-track to jump
+scrollbarH.addEventListener('click', e => {
+  if(e.target === thumbH) return;
+  const rect = scrollbarH.getBoundingClientRect();
+  const ratio = (e.clientX - rect.left) / scrollbarH.clientWidth;
+  tableWrapper.scrollLeft = ratio * (gridContainer.offsetWidth - tableWrapper.clientWidth);
+  requestAnimationFrame(renderVirtualTable);
+});
+scrollbarV.addEventListener('click', e => {
+  if(e.target === thumbV) return;
+  const rect = scrollbarV.getBoundingClientRect();
+  const ratio = (e.clientY - rect.top) / scrollbarV.clientHeight;
+  tableWrapper.scrollTop = ratio * (gridContainer.offsetHeight - tableWrapper.clientHeight);
+  requestAnimationFrame(renderVirtualTable);
+});
+
+// Mouse wheel on the grid area
+tableWrapper.addEventListener('wheel', e => {
+  e.preventDefault();
+  tableWrapper.scrollLeft += e.deltaX;
+  tableWrapper.scrollTop  += e.deltaY;
+  requestAnimationFrame(renderVirtualTable);
+}, { passive: false });
 
 // --- Update Calculators ---
 function updateCalculators(){
-  if(document.getElementById('rent-calculator').classList.contains('active')) renderVirtualTable();
+  if(document.getElementById('rent-calculator').classList.contains('active')){
+    renderVirtualTable();
+    updateScrollbars();
+  }
   if(document.getElementById('construction-calculator').classList.contains('active')) calculateConstruction();
 }
 
-// --- Scroll Listener ---
-tableWrapper.addEventListener('scroll', () => { requestAnimationFrame(renderVirtualTable); });
+// Patch renderVirtualTable to always sync scrollbars after render
+const _render = renderVirtualTable;
+// (scrollbar update is called from updateCalculators and scroll handler below)
+
+// --- Scroll Listener (wheel only now — native scroll is disabled) ---
+// Scrollbars drive scrollLeft/scrollTop directly; we just need resize awareness
+window.addEventListener('resize', () => { requestAnimationFrame(() => { renderVirtualTable(); updateScrollbars(); }); });
 
 // --- Initial Update ---
 debouncedUpdateCalculators();
