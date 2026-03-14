@@ -4,193 +4,216 @@ function debounce(func, delay) {
   return function(...args) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), delay);
-  }
+  };
 }
-const debouncedUpdateCalculators = debounce(updateCalculators, 100);
+const debouncedUpdate = debounce(updateCalculators, 100);
 
 // --- Tab Switching ---
 function switchTab(tab) {
   document.querySelectorAll('.calculator').forEach(c => c.classList.remove('active'));
   document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-  if(tab==='rent'){document.getElementById('rent-calculator').classList.add('active');document.querySelector('.tab-button:nth-child(1)').classList.add('active');}
-  else{document.getElementById('construction-calculator').classList.add('active');document.querySelector('.tab-button:nth-child(2)').classList.add('active');}
-  debouncedUpdateCalculators();
+  if (tab === 'rent') {
+    document.getElementById('rent-calculator').classList.add('active');
+    document.querySelector('.tab-button:nth-child(1)').classList.add('active');
+  } else {
+    document.getElementById('construction-calculator').classList.add('active');
+    document.querySelector('.tab-button:nth-child(2)').classList.add('active');
+  }
+  debouncedUpdate();
 }
 
 // --- Input / Slider Sync ---
-function setupInputSlider(inputId){
-  const input=document.getElementById(inputId);
-  const slider=document.getElementById(inputId+'Slider');
-  input.oninput=()=>{slider.value=input.value;debouncedUpdateCalculators();};
-  slider.oninput=()=>{input.value=slider.value;debouncedUpdateCalculators();};
+function setupInputSlider(id) {
+  const input  = document.getElementById(id);
+  const slider = document.getElementById(id + 'Slider');
+  input.oninput  = () => { slider.value = input.value;  debouncedUpdate(); };
+  slider.oninput = () => { input.value  = slider.value; debouncedUpdate(); };
 }
-['interest','years','vacancy','grant','resMin','resMax','resStep','costMin','costMax','costStep','costSqFt','sqFtUnit','nonUnit','units','error'].forEach(setupInputSlider);
+['interest','years','vacancy','grant','resMin','resMax','resStep',
+ 'costMin','costMax','costStep','costSqFt','sqFtUnit','nonUnit','units','error']
+  .forEach(setupInputSlider);
 
 // --- Tooltip ---
-const tooltip=document.getElementById('tooltip');
-document.querySelectorAll('label[data-tooltip]').forEach(label=>{
-  label.addEventListener('mouseenter',()=>{tooltip.innerText=label.dataset.tooltip;tooltip.style.display='block';});
-  label.addEventListener('mousemove',e=>{tooltip.style.top=(e.clientY+15)+'px';tooltip.style.left=(e.clientX+15)+'px';});
-  label.addEventListener('mouseleave',()=>{tooltip.style.display='none';});
+const tooltip = document.getElementById('tooltip');
+document.querySelectorAll('label[data-tooltip]').forEach(label => {
+  label.addEventListener('mouseenter', () => {
+    tooltip.innerText = label.dataset.tooltip;
+    tooltip.style.display = 'block';
+  });
+  label.addEventListener('mousemove', e => {
+    tooltip.style.top  = (e.clientY + 15) + 'px';
+    tooltip.style.left = (e.clientX + 15) + 'px';
+  });
+  label.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
 });
 
 // --- Construction Calculator ---
-function calculateConstruction(){
-  const costSqFt=parseFloat(document.getElementById("costSqFt").value);
-  const sqFtUnit=parseFloat(document.getElementById("sqFtUnit").value);
-  const nonUnit=parseFloat(document.getElementById("nonUnit").value)/100;
-  const units=parseFloat(document.getElementById("units").value);
-  const error=parseFloat(document.getElementById("error").value)/100;
-  const totalSqFt=(sqFtUnit*units)/(1-nonUnit);
-  const totalCost=totalSqFt*costSqFt*(1+error);
-  document.getElementById("totalSqFt").innerText=Math.round(totalSqFt).toLocaleString()+" sq ft";
-  document.getElementById("totalCost").innerText="$"+Math.round(totalCost).toLocaleString();
+function calculateConstruction() {
+  const costSqFt = parseFloat(document.getElementById('costSqFt').value);
+  const sqFtUnit = parseFloat(document.getElementById('sqFtUnit').value);
+  const nonUnit  = parseFloat(document.getElementById('nonUnit').value) / 100;
+  const units    = parseFloat(document.getElementById('units').value);
+  const error    = parseFloat(document.getElementById('error').value) / 100;
+  const totalSqFt  = (sqFtUnit * units) / (1 - nonUnit);
+  const totalCost  = totalSqFt * costSqFt * (1 + error);
+  document.getElementById('totalSqFt').innerText = Math.round(totalSqFt).toLocaleString() + ' sq ft';
+  document.getElementById('totalCost').innerText = '$' + Math.round(totalCost).toLocaleString();
 }
 
-// --- Virtualization Settings ---
-const rowHeight = 30;
-const colWidth  = 90;
-const buffer    = 5;
-const tableWrapper = document.getElementById('tableWrapper');
+// --- Virtualization constants ---
+const ROW_H  = 30;
+const COL_W  = 90;
+const BUFFER = 5;
+
+const tableWrapper  = document.getElementById('tableWrapper');
 const gridContainer = document.getElementById('rentTable');
+const scrollbarH    = document.getElementById('scrollbarH');
+const scrollbarV    = document.getElementById('scrollbarV');
+const thumbH        = document.getElementById('thumbH');
+const thumbV        = document.getElementById('thumbV');
 
-// --- Lazy Rent Computation ---
-function computeRent(cost,residents,interest,years,vacancy,grant){
-  const bond=Math.max(0,cost-grant);
-  const totalInterest=bond*interest*years;
-  const totalCost=bond+totalInterest;
-  const effectiveResidents=residents*(1-vacancy);
-  return Math.round(totalCost/(years*12)/effectiveResidents);
+// Virtual scroll position (replaces tableWrapper.scrollLeft/Top)
+let scrollX = 0;
+let scrollY = 0;
+let totalContentW = 0;
+let totalContentH = 0;
+
+// --- Rent computation ---
+function computeRent(cost, residents, interest, years, vacancy, grant) {
+  const bond            = Math.max(0, cost - grant);
+  const totalInterest   = bond * interest * years;
+  const totalCost       = bond + totalInterest;
+  const effectiveRes    = residents * (1 - vacancy);
+  return Math.round(totalCost / (years * 12) / effectiveRes);
 }
 
-// --- Virtual Grid Render ---
-function renderVirtualTable(){
-  const interest = parseFloat(document.getElementById("interest").value)/100;
-  const years    = parseFloat(document.getElementById("years").value);
-  const vacancy  = parseFloat(document.getElementById("vacancy").value)/100;
-  const grant    = parseFloat(document.getElementById("grant").value);
-  const resMin   = parseInt(document.getElementById("resMin").value);
-  const resMax   = parseInt(document.getElementById("resMax").value);
-  const resStep  = parseInt(document.getElementById("resStep").value);
-  const costMin  = parseInt(document.getElementById("costMin").value);
-  const costMax  = parseInt(document.getElementById("costMax").value);
-  const costStep = parseInt(document.getElementById("costStep").value);
+// --- Render virtual grid ---
+function renderVirtualTable() {
+  const interest  = parseFloat(document.getElementById('interest').value) / 100;
+  const years     = parseFloat(document.getElementById('years').value);
+  const vacancy   = parseFloat(document.getElementById('vacancy').value) / 100;
+  const grant     = parseFloat(document.getElementById('grant').value);
+  const resMin    = parseInt(document.getElementById('resMin').value);
+  const resMax    = parseInt(document.getElementById('resMax').value);
+  const resStep   = parseInt(document.getElementById('resStep').value);
+  const costMin   = parseInt(document.getElementById('costMin').value);
+  const costMax   = parseInt(document.getElementById('costMax').value);
+  const costStep  = parseInt(document.getElementById('costStep').value);
 
   const totalRows = Math.floor((costMax - costMin) / costStep) + 1;
   const totalCols = Math.floor((resMax  - resMin)  / resStep)  + 1;
 
-  // +1 row and +1 col for the sticky header/label strips
-  gridContainer.style.width  = (totalCols + 1) * colWidth  + "px";
-  gridContainer.style.height = (totalRows + 1) * rowHeight + "px";
+  // Total virtual canvas size (+1 for header row/col)
+  totalContentW = (totalCols + 1) * COL_W;
+  totalContentH = (totalRows + 1) * ROW_H;
 
-  const scrollTop  = tableWrapper.scrollTop;
-  const scrollLeft = tableWrapper.scrollLeft;
+  // Clamp scroll position
+  const maxScrollX = Math.max(0, totalContentW - tableWrapper.clientWidth);
+  const maxScrollY = Math.max(0, totalContentH - tableWrapper.clientHeight);
+  scrollX = Math.min(scrollX, maxScrollX);
+  scrollY = Math.min(scrollY, maxScrollY);
 
-  const firstRow = Math.max(0, Math.floor(scrollTop  / rowHeight) - buffer);
-  const lastRow  = Math.min(totalRows, firstRow + Math.ceil(tableWrapper.clientHeight / rowHeight) + buffer * 2);
-  const firstCol = Math.max(0, Math.floor(scrollLeft / colWidth)  - buffer);
-  const lastCol  = Math.min(totalCols, firstCol + Math.ceil(tableWrapper.clientWidth  / colWidth)  + buffer * 2);
+  // Visible window
+  const firstCol = Math.max(0, Math.floor(scrollX / COL_W) - BUFFER);
+  const lastCol  = Math.min(totalCols, firstCol + Math.ceil(tableWrapper.clientWidth  / COL_W) + BUFFER * 2);
+  const firstRow = Math.max(0, Math.floor(scrollY / ROW_H) - BUFFER);
+  const lastRow  = Math.min(totalRows, firstRow + Math.ceil(tableWrapper.clientHeight / ROW_H) + BUFFER * 2);
 
-  gridContainer.innerHTML = "";
+  gridContainer.innerHTML = '';
 
-  const base = `position:absolute;width:${colWidth}px;height:${rowHeight}px;` +
+  const base = `position:absolute;width:${COL_W}px;height:${ROW_H}px;` +
                `box-sizing:border-box;border:1px solid #ccc;` +
                `overflow:hidden;white-space:nowrap;text-align:center;` +
-               `line-height:${rowHeight}px;font-size:13px;padding:0 4px;`;
-  const headerBg = "background:#e0e0e0;font-weight:bold;z-index:2;";
+               `line-height:${ROW_H}px;font-size:13px;padding:0 4px;`;
+  const hdr  = 'background:#e0e0e0;font-weight:bold;z-index:2;';
 
-  // Corner cell — pinned to scrollTop + scrollLeft
-  const corner = document.createElement("div");
-  corner.style.cssText = base + headerBg + `top:${scrollTop}px;left:${scrollLeft}px;`;
-  corner.textContent = "Property Cost";
+  // Corner cell — always at current scroll position
+  const corner = document.createElement('div');
+  corner.style.cssText = base + hdr + `top:${scrollY}px;left:${scrollX}px;`;
+  corner.textContent = 'Property Cost';
   gridContainer.appendChild(corner);
 
-  // Column headers (resident counts) — pinned to scrollTop
-  for(let c = firstCol; c < lastCol; c++){
-    const res = resMin + c * resStep;
-    const cell = document.createElement("div");
-    cell.style.cssText = base + headerBg + `top:${scrollTop}px;left:${(c + 1) * colWidth}px;`;
-    cell.textContent = res;
+  // Column headers — pinned to scrollY
+  for (let c = firstCol; c < lastCol; c++) {
+    const cell = document.createElement('div');
+    cell.style.cssText = base + hdr + `top:${scrollY}px;left:${(c + 1) * COL_W}px;`;
+    cell.textContent = resMin + c * resStep;
     gridContainer.appendChild(cell);
   }
 
-  // Row headers (property costs) — pinned to scrollLeft
-  for(let r = firstRow; r < lastRow; r++){
+  // Row headers — pinned to scrollX
+  for (let r = firstRow; r < lastRow; r++) {
     const cost = costMin + r * costStep;
-    const cell = document.createElement("div");
-    cell.style.cssText = base + headerBg + `top:${(r + 1) * rowHeight}px;left:${scrollLeft}px;`;
-    cell.textContent = "$" + cost.toLocaleString();
+    const cell = document.createElement('div');
+    cell.style.cssText = base + hdr + `top:${(r + 1) * ROW_H}px;left:${scrollX}px;`;
+    cell.textContent = '$' + cost.toLocaleString();
     gridContainer.appendChild(cell);
   }
 
   // Data cells
-  for(let r = firstRow; r < lastRow; r++){
+  for (let r = firstRow; r < lastRow; r++) {
     const cost = costMin + r * costStep;
-    for(let c = firstCol; c < lastCol; c++){
+    for (let c = firstCol; c < lastCol; c++) {
       const residents = resMin + c * resStep;
       const rent = computeRent(cost, residents, interest, years, vacancy, grant);
-      let bg;
-      if     (rent <= 250)  bg = "#4CAF50";
-      else if(rent <= 625)  bg = "#FFD54F";
-      else if(rent <= 1000) bg = "#FB8C00";
-      else                  bg = "#E53935";
-      const cell = document.createElement("div");
-      cell.style.cssText = base + `top:${(r + 1) * rowHeight}px;left:${(c + 1) * colWidth}px;background:${bg};`;
-      cell.textContent = "$" + rent;
+      const bg = rent <= 250 ? '#4CAF50' : rent <= 625 ? '#FFD54F' : rent <= 1000 ? '#FB8C00' : '#E53935';
+      const cell = document.createElement('div');
+      cell.style.cssText = base + `top:${(r + 1) * ROW_H}px;left:${(c + 1) * COL_W}px;background:${bg};`;
+      cell.textContent = '$' + rent;
       gridContainer.appendChild(cell);
     }
   }
 
-  // Sync scrollbars after every render
-  if(typeof updateScrollbars === 'function') updateScrollbars();
+  // Size the container so it represents the full virtual canvas
+  gridContainer.style.width  = totalContentW + 'px';
+  gridContainer.style.height = totalContentH + 'px';
+
+  updateScrollbars();
 }
 
-// --- Custom Scrollbars ---
-const scrollbarH = document.getElementById('scrollbarH');
-const scrollbarV = document.getElementById('scrollbarV');
-const thumbH     = document.getElementById('thumbH');
-const thumbV     = document.getElementById('thumbV');
+// --- Scrollbar sync ---
+function updateScrollbars() {
+  const viewW = tableWrapper.clientWidth;
+  const viewH = tableWrapper.clientHeight;
 
-function updateScrollbars(){
-  const contentW = gridContainer.offsetWidth;
-  const contentH = gridContainer.offsetHeight;
-  const viewW    = tableWrapper.clientWidth;
-  const viewH    = tableWrapper.clientHeight;
-  const scrollLeft = tableWrapper.scrollLeft;
-  const scrollTop  = tableWrapper.scrollTop;
+  // Horizontal
+  const trackW  = scrollbarH.clientWidth;
+  const ratioW  = Math.min(1, viewW / totalContentW);
+  const tW      = Math.max(30, trackW * ratioW);
+  const maxTX   = trackW - tW;
+  const tX      = totalContentW > viewW ? (scrollX / (totalContentW - viewW)) * maxTX : 0;
+  thumbH.style.width = tW + 'px';
+  thumbH.style.left  = tX + 'px';
 
-  // Horizontal thumb
-  const trackW   = scrollbarH.clientWidth;
-  const thumbWPx = Math.max(30, trackW * (viewW / contentW));
-  const thumbXPx = (contentW > viewW) ? scrollLeft / (contentW - viewW) * (trackW - thumbWPx) : 0;
-  thumbH.style.width = thumbWPx + "px";
-  thumbH.style.left  = thumbXPx + "px";
-
-  // Vertical thumb
-  const trackH   = scrollbarV.clientHeight;
-  const thumbHPx = Math.max(30, trackH * (viewH / contentH));
-  const thumbYPx = (contentH > viewH) ? scrollTop / (contentH - viewH) * (trackH - thumbHPx) : 0;
-  thumbV.style.height = thumbHPx + "px";
-  thumbV.style.top    = thumbYPx + "px";
+  // Vertical
+  const trackH  = scrollbarV.clientHeight;
+  const ratioH  = Math.min(1, viewH / totalContentH);
+  const tH      = Math.max(30, trackH * ratioH);
+  const maxTY   = trackH - tH;
+  const tY      = totalContentH > viewH ? (scrollY / (totalContentH - viewH)) * maxTY : 0;
+  thumbV.style.height = tH + 'px';
+  thumbV.style.top    = tY + 'px';
 }
 
-function makeDraggable(thumb, scrollbar, axis){
-  let startMouse, startScroll;
+// --- Draggable thumbs ---
+function makeDraggable(thumb, track, axis) {
   thumb.addEventListener('mousedown', e => {
     e.preventDefault();
     thumb.classList.add('dragging');
-    startMouse = axis === 'x' ? e.clientX : e.clientY;
-    startScroll = axis === 'x' ? tableWrapper.scrollLeft : tableWrapper.scrollTop;
-    const contentSize = axis === 'x' ? gridContainer.offsetWidth  : gridContainer.offsetHeight;
-    const viewSize    = axis === 'x' ? tableWrapper.clientWidth    : tableWrapper.clientHeight;
-    const trackSize   = axis === 'x' ? scrollbar.clientWidth       : scrollbar.clientHeight;
-    const thumbSize   = axis === 'x' ? thumb.offsetWidth           : thumb.offsetHeight;
+    const startMouse  = axis === 'x' ? e.clientX : e.clientY;
+    const startScroll = axis === 'x' ? scrollX : scrollY;
+    const trackSize   = axis === 'x' ? track.clientWidth  : track.clientHeight;
+    const thumbSize   = axis === 'x' ? thumb.offsetWidth  : thumb.offsetHeight;
+    const contentSize = axis === 'x' ? totalContentW : totalContentH;
+    const viewSize    = axis === 'x' ? tableWrapper.clientWidth : tableWrapper.clientHeight;
+
     const onMove = e => {
-      const delta = (axis === 'x' ? e.clientX : e.clientY) - startMouse;
+      const delta       = (axis === 'x' ? e.clientX : e.clientY) - startMouse;
       const scrollRatio = delta / (trackSize - thumbSize);
-      const newScroll = startScroll + scrollRatio * (contentSize - viewSize);
-      if(axis === 'x') tableWrapper.scrollLeft = newScroll;
-      else             tableWrapper.scrollTop  = newScroll;
+      const newScroll   = Math.max(0, Math.min(contentSize - viewSize,
+                            startScroll + scrollRatio * (contentSize - viewSize)));
+      if (axis === 'x') scrollX = newScroll;
+      else              scrollY = newScroll;
       requestAnimationFrame(renderVirtualTable);
     };
     const onUp = () => {
@@ -202,50 +225,40 @@ function makeDraggable(thumb, scrollbar, axis){
     window.addEventListener('mouseup', onUp);
   });
 }
-
 makeDraggable(thumbH, scrollbarH, 'x');
 makeDraggable(thumbV, scrollbarV, 'y');
 
-// Click-on-track to jump
+// --- Click track to jump ---
 scrollbarH.addEventListener('click', e => {
-  if(e.target === thumbH) return;
-  const rect = scrollbarH.getBoundingClientRect();
+  if (e.target === thumbH) return;
+  const rect  = scrollbarH.getBoundingClientRect();
   const ratio = (e.clientX - rect.left) / scrollbarH.clientWidth;
-  tableWrapper.scrollLeft = ratio * (gridContainer.offsetWidth - tableWrapper.clientWidth);
+  scrollX = ratio * Math.max(0, totalContentW - tableWrapper.clientWidth);
   requestAnimationFrame(renderVirtualTable);
 });
 scrollbarV.addEventListener('click', e => {
-  if(e.target === thumbV) return;
-  const rect = scrollbarV.getBoundingClientRect();
+  if (e.target === thumbV) return;
+  const rect  = scrollbarV.getBoundingClientRect();
   const ratio = (e.clientY - rect.top) / scrollbarV.clientHeight;
-  tableWrapper.scrollTop = ratio * (gridContainer.offsetHeight - tableWrapper.clientHeight);
+  scrollY = ratio * Math.max(0, totalContentH - tableWrapper.clientHeight);
   requestAnimationFrame(renderVirtualTable);
 });
 
-// Mouse wheel on the grid area
+// --- Mouse wheel ---
 tableWrapper.addEventListener('wheel', e => {
   e.preventDefault();
-  tableWrapper.scrollLeft += e.deltaX;
-  tableWrapper.scrollTop  += e.deltaY;
+  scrollX = Math.max(0, Math.min(totalContentW - tableWrapper.clientWidth,  scrollX + e.deltaX));
+  scrollY = Math.max(0, Math.min(totalContentH - tableWrapper.clientHeight, scrollY + e.deltaY));
   requestAnimationFrame(renderVirtualTable);
 }, { passive: false });
 
+// --- Resize ---
+window.addEventListener('resize', () => requestAnimationFrame(renderVirtualTable));
+
 // --- Update Calculators ---
-function updateCalculators(){
-  if(document.getElementById('rent-calculator').classList.contains('active')){
-    renderVirtualTable();
-    updateScrollbars();
-  }
-  if(document.getElementById('construction-calculator').classList.contains('active')) calculateConstruction();
+function updateCalculators() {
+  if (document.getElementById('rent-calculator').classList.contains('active')) renderVirtualTable();
+  if (document.getElementById('construction-calculator').classList.contains('active')) calculateConstruction();
 }
 
-// Patch renderVirtualTable to always sync scrollbars after render
-const _render = renderVirtualTable;
-// (scrollbar update is called from updateCalculators and scroll handler below)
-
-// --- Scroll Listener (wheel only now — native scroll is disabled) ---
-// Scrollbars drive scrollLeft/scrollTop directly; we just need resize awareness
-window.addEventListener('resize', () => { requestAnimationFrame(() => { renderVirtualTable(); updateScrollbars(); }); });
-
-// --- Initial Update ---
-debouncedUpdateCalculators();
+debouncedUpdate();
