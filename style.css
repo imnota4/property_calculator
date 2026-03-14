@@ -54,24 +54,24 @@ body {
 
 /* --- Input Groups --- */
 .input-group {
-  display: flex;              
-  align-items: center;        
+  display: flex;
+  align-items: center;
   margin-bottom: 10px;
-  gap: 10px;                  
+  gap: 10px;
 }
 
 .input-group label {
-  width: 150px;                
+  width: 150px;
   text-align: right;
   font-weight: bold;
 }
 
 .input-group input[type="number"] {
-  width: 80px;                 
+  width: 80px;
 }
 
 .input-group input[type="range"] {
-  flex: 1;                     
+  flex: 1;
 }
 
 /* --- Main Area --- */
@@ -81,45 +81,23 @@ body {
   box-sizing: border-box;
 }
 
-/* --- Virtual Table --- */
-.table-container {
-  width: 100%;
-  overflow: auto;
+/* --- Table Styling --- */
+#rentTable {
   position: relative;
+  border-collapse: collapse;
+}
+
+#rentTable th, #rentTable td {
   border: 1px solid #ccc;
-  height: 600px; /* Adjust as needed */
-}
-
-.header-row {
-  display: flex;
-  position: sticky;
-  top: 0;
-  background: #f0f0f0;
-  z-index: 2;
-  border-bottom: 2px solid #999;
-}
-
-.row {
-  display: flex;
-}
-
-.cell {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
-  height: 30px;
-  line-height: 30px;
+  padding: 5px;
   text-align: center;
-  border: 1px solid #ccc;
   box-sizing: border-box;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 /* --- Tooltip Styling --- */
 .tooltip {
   position: fixed;
-  pointer-events: none;       
+  pointer-events: none;
   background: rgba(0,0,0,0.8);
   color: #fff;
   padding: 5px 8px;
