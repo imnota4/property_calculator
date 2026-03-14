@@ -1,22 +1,26 @@
-/* --- General Body --- */
-body {
-  font-family: Arial, sans-serif;
+/* --- Lock page to viewport, no page scroll ever --- */
+html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
 }
 
-/* --- Container Layout --- */
+/* --- Container fills full viewport height --- */
 .container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
-/* --- Sidebar --- */
+/* --- Sidebar scrolls independently --- */
 .sidebar {
   width: 400px;
   padding: 20px;
   background: #f5f5f5;
   box-sizing: border-box;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 /* --- Tabs --- */
@@ -35,22 +39,12 @@ body {
   transition: background 0.2s;
 }
 
-.tab-button:hover {
-  background: #ccc;
-}
-
-.tab-button.active {
-  background: #bbb;
-}
+.tab-button:hover  { background: #ccc; }
+.tab-button.active { background: #bbb; }
 
 /* --- Calculator Sections --- */
-.calculator {
-  display: none;
-}
-
-.calculator.active {
-  display: block;
-}
+.calculator        { display: none; }
+.calculator.active { display: block; }
 
 /* --- Input Groups --- */
 .input-group {
@@ -66,32 +60,30 @@ body {
   font-weight: bold;
 }
 
-.input-group input[type="number"] {
-  width: 80px;
-}
+.input-group input[type="number"] { width: 80px; }
+.input-group input[type="range"]  { flex: 1; }
 
-.input-group input[type="range"] {
-  flex: 1;
-}
-
-/* --- Main Area --- */
+/* --- Main area fills remaining width and full height --- */
 .main {
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-/* --- Grid & Custom Scrollbars --- */
+/* --- gridOuter fills all available space in .main --- */
 #gridOuter {
-  position: relative;
-  width: 100%;
-  height: 80vh;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1fr 10px;
   grid-template-rows: 1fr 10px;
-  gap: 2px;
+  gap: 3px;
 }
 
+/* --- Table viewport: no native scrollbars, clips content --- */
 #tableWrapper {
   grid-column: 1;
   grid-row: 1;
@@ -99,6 +91,7 @@ body {
   position: relative;
 }
 
+/* --- Custom scrollbar tracks --- */
 #scrollbarH {
   grid-column: 1;
   grid-row: 2;
@@ -117,6 +110,7 @@ body {
   cursor: pointer;
 }
 
+/* --- Thumbs --- */
 #thumbH, #thumbV {
   position: absolute;
   background: #999;
@@ -126,25 +120,16 @@ body {
 
 #thumbH:hover, #thumbV:hover,
 #thumbH.dragging, #thumbV.dragging {
-  background: #666;
+  background: #555;
 }
 
-#thumbH {
-  height: 100%;
-  min-width: 30px;
-}
+#thumbH { height: 100%; min-width: 30px; }
+#thumbV { width: 100%;  min-height: 30px; }
 
-#thumbV {
-  width: 100%;
-  min-height: 30px;
-}
+/* --- Grid content --- */
+#rentTable { position: relative; }
 
-/* --- Grid Styling --- */
-#rentTable {
-  position: relative;
-}
-
-/* --- Tooltip Styling --- */
+/* --- Tooltip --- */
 .tooltip {
   position: fixed;
   pointer-events: none;
