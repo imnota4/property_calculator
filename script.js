@@ -1,14 +1,12 @@
-// --- Debounce helper ---
-function debounce(func, delay) {
+// --- Debounce ---
+function debounce(func,delay){
   let timeout;
-  return function(...args) {
+  return (...args)=>{
     clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), delay);
+    timeout=setTimeout(()=>func(...args),delay);
   }
 }
-
-// --- Debounced update ---
-const debouncedUpdate = debounce(updateCalculators, 100);
+const debouncedUpdate=debounce(updateCalculators,50);
 
 // --- Tab switching ---
 function switchTab(tab){
@@ -24,21 +22,20 @@ function switchTab(tab){
   debouncedUpdate();
 }
 
-// --- Sync inputs & sliders ---
+// --- Input/Slider Sync ---
 function setupInputSlider(id){
   const input=document.getElementById(id);
   const slider=document.getElementById(id+'Slider');
-  input.oninput=function(){slider.value=input.value;debouncedUpdate();}
-  slider.oninput=function(){input.value=slider.value;debouncedUpdate();}
+  input.oninput=()=>{slider.value=input.value;debouncedUpdate();}
+  slider.oninput=()=>{input.value=slider.value;debouncedUpdate();}
 }
-
 [
   'interest','years','vacancy','grant',
   'resMin','resMax','resStep','costMin','costMax','costStep',
   'costSqFt','sqFtUnit','nonUnit','units','error'
 ].forEach(setupInputSlider);
 
-// --- Tooltips ---
+// --- Tooltip ---
 const tooltip=document.getElementById('tooltip');
 document.querySelectorAll('label[data-tooltip]').forEach(label=>{
   label.addEventListener('mouseenter',()=>{tooltip.innerText=label.dataset.tooltip;tooltip.style.display='block';});
@@ -60,12 +57,11 @@ function calculateConstruction(){
   document.getElementById("totalCost").innerText="$"+Math.round(totalCost).toLocaleString();
 }
 
-// --- Rent Table Virtualization ---
-const tableWrapper=document.getElementById('tableWrapper');
-const table=document.getElementById('rentTable');
-const rowHeight=30;
-const colWidth=80;
-const buffer=5;
+// --- Virtualized Rent Table ---
+const tableContainer=document.getElementById('tableContainer');
+const tableHeader=document.getElementById('tableHeader');
+const tableBody=document.getElementById('tableBody');
+const rowHeight=30, colWidth=80, buffer=5;
 
 function computeRent(cost,residents,interest,years,vacancy,grant){
   const principal=Math.max(0,cost-grant);
@@ -87,69 +83,63 @@ function renderVirtualTable(){
   const costMax=parseInt(document.getElementById("costMax").value);
   const costStep=parseInt(document.getElementById("costStep").value);
 
-  const totalRows=Math.floor((costMax-costMin)/costStep)+1;
   const totalCols=Math.floor((resMax-resMin)/resStep)+1;
-
-  table.style.height=totalRows*rowHeight+"px";
-  table.style.width=totalCols*colWidth+"px";
-
-  const scrollTop=tableWrapper.scrollTop;
-  const scrollLeft=tableWrapper.scrollLeft;
-
-  const firstRow=Math.max(0,Math.floor(scrollTop/rowHeight)-buffer);
-  const lastRow=Math.min(totalRows,firstRow+Math.ceil(tableWrapper.clientHeight/rowHeight)+buffer*2);
-  const firstCol=Math.max(0,Math.floor(scrollLeft/colWidth)-buffer);
-  const lastCol=Math.min(totalCols,firstCol+Math.ceil(tableWrapper.clientWidth/colWidth)+buffer*2);
-
-  table.innerHTML="";
+  const totalRows=Math.floor((costMax-costMin)/costStep)+1;
 
   // Header
-  const headerTr=document.createElement("tr");
-  headerTr.style.position="sticky";
-  headerTr.style.top="0px";
-  headerTr.style.left="0px";
-  headerTr.style.height=rowHeight+"px";
-  headerTr.innerHTML="<th style='width:"+colWidth+"px;'>Property Cost</th>";
-  for(let c=firstCol;c<lastCol;c++){
+  tableHeader.innerHTML='';
+  tableHeader.style.width=(totalCols*colWidth+colWidth)+'px';
+  const firstHeaderCell=document.createElement('div');
+  firstHeaderCell.className='cell';
+  firstHeaderCell.innerText='Property Cost';
+  tableHeader.appendChild(firstHeaderCell);
+  for(let c=0;c<totalCols;c++){
     const res=resMin+c*resStep;
-    headerTr.innerHTML+=`<th style="width:${colWidth}px;">${res}</th>`;
+    const div=document.createElement('div');
+    div.className='cell';
+    div.innerText=res;
+    tableHeader.appendChild(div);
   }
-  table.appendChild(headerTr);
 
-  // Data Rows
-  for(let r=firstRow;r<lastRow;r++){
+  // Virtualized rows
+  const scrollTop=tableBody.scrollTop;
+  const startRow=Math.max(0,Math.floor(scrollTop/rowHeight)-buffer);
+  const endRow=Math.min(totalRows,startRow+Math.ceil(tableBody.clientHeight/rowHeight)+buffer*2);
+
+  tableBody.innerHTML='';
+  tableBody.style.height=(totalRows*rowHeight)+'px';
+  tableBody.scrollTop=scrollTop;
+
+  for(let r=startRow;r<endRow;r++){
     const cost=costMin+r*costStep;
-    const tr=document.createElement("tr");
-    tr.style.position="absolute";
-    tr.style.top=(r*rowHeight+rowHeight)+"px";
-    tr.style.left="0px";
-    tr.style.height=rowHeight+"px";
-    tr.innerHTML=`<th style="width:${colWidth}px;">$${cost.toLocaleString()}</th>`;
-    for(let c=firstCol;c<lastCol;c++){
+    const row=document.createElement('div');
+    row.className='row';
+    row.style.position='absolute';
+    row.style.top=(r*rowHeight)+'px';
+    row.style.height=rowHeight+'px';
+    // Property Cost
+    const costCell=document.createElement('div');
+    costCell.className='cell';
+    costCell.innerText='$'+cost.toLocaleString();
+    row.appendChild(costCell);
+    // Resident Rents
+    for(let c=0;c<totalCols;c++){
       const residents=resMin+c*resStep;
       const rent=computeRent(cost,residents,interest,years,vacancy,grant);
-      let color;
-      if(rent<=250) color="#4CAF50";
-      else if(rent<=625) color="#FFD54F";
-      else if(rent<=1000) color="#FB8C00";
-      else color="#E53935";
-      tr.innerHTML+=`<td style="width:${colWidth}px;background:${color}">$${rent}</td>`;
+      const div=document.createElement('div');
+      div.className='cell';
+      div.innerText='$'+rent;
+      if(rent<=250) div.style.background="#4CAF50";
+      else if(rent<=625) div.style.background="#FFD54F";
+      else if(rent<=1000) div.style.background="#FB8C00";
+      else div.style.background="#E53935";
+      row.appendChild(div);
     }
-    table.appendChild(tr);
+    tableBody.appendChild(row);
   }
 }
 
-// --- Scroll listener ---
-let ticking=false;
-tableWrapper.addEventListener('scroll',()=>{
-  if(!ticking){
-    requestAnimationFrame(()=>{
-      renderVirtualTable();
-      ticking=false;
-    });
-    ticking=true;
-  }
-});
+tableBody.addEventListener('scroll',()=>{renderVirtualTable();});
 
 // --- Update calculators ---
 function updateCalculators(){
@@ -161,5 +151,5 @@ function updateCalculators(){
   }
 }
 
-// --- Initial update ---
+// --- Initial ---
 debouncedUpdate();
