@@ -74,27 +74,16 @@ body {
   flex: 1;
 }
 
-/* --- Main Area ---- */
+/* --- Main Area --- */
 .main {
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
 }
 
-/* --- Table Styling --- */
+/* --- Grid Styling --- */
 #rentTable {
   position: relative;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-#rentTable th, #rentTable td {
-  border: 1px solid #ccc;
-  padding: 5px;
-  text-align: center;
-  box-sizing: border-box;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 /* --- Tooltip Styling --- */
