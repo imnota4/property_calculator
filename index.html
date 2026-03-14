@@ -21,7 +21,6 @@
     <!-- Rent Calculator -->
     <div id="rent-calculator" class="calculator active">
       <h3>Rent Calculator</h3>
-
       <div class="input-group">
         <label data-tooltip="The annual interest rate applied to the municipal bond. Interest on municipal bonds do not compound.">Interest Rate (%)</label>
         <input id="interest" type="number" value="3">
@@ -87,7 +86,6 @@
     <!-- Construction Calculator -->
     <div id="construction-calculator" class="calculator">
       <h3>Construction Calculator</h3>
-
       <div class="input-group">
         <label data-tooltip="Cost per square foot of construction.">Cost per Sq Ft ($)</label>
         <input id="costSqFt" type="number" value="300">
@@ -130,8 +128,9 @@
 
   <!-- Main Area -->
   <div class="main">
-    <div id="tableWrapper">
-      <table id="rentTable"></table>
+    <div class="table-container" id="tableContainer">
+      <div class="header-row" id="tableHeader"></div>
+      <div id="tableBody" style="overflow:auto; height:100%; position:relative;"></div>
     </div>
   </div>
 
