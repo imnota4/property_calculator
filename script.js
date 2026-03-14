@@ -8,7 +8,7 @@ function debounce(func, delay) {
 }
 const debouncedUpdateCalculators = debounce(updateCalculators, 100);
  
-// --- Tab Switching ---
+// --- Tab Switching ----
 function switchTab(tab) {
   document.querySelectorAll('.calculator').forEach(c => c.classList.remove('active'));
   document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
