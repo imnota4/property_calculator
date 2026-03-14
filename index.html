@@ -12,7 +12,7 @@
   <!-- Sidebar -->
   <div class="sidebar">
 
-    <!-- Tabs -->
+    <!-- Tabs at the TOP of the sidebar -->
     <div class="tabs">
       <button class="tab-button active" onclick="switchTab('rent')">Rent Calculator</button>
       <button class="tab-button" onclick="switchTab('construction')">Construction Calculator</button>
@@ -20,7 +20,9 @@
 
     <!-- Rent Calculator -->
     <div id="rent-calculator" class="calculator active">
+
       <h3>Rent Calculator</h3>
+
       <div class="input-group">
         <label data-tooltip="The annual interest rate applied to the municipal bond. Interest on municipal bonds do not compound.">Interest Rate (%)</label>
         <input id="interest" type="number" value="3">
@@ -85,7 +87,9 @@
 
     <!-- Construction Calculator -->
     <div id="construction-calculator" class="calculator">
+
       <h3>Construction Calculator</h3>
+
       <div class="input-group">
         <label data-tooltip="Cost per square foot of construction.">Cost per Sq Ft ($)</label>
         <input id="costSqFt" type="number" value="300">
@@ -128,14 +132,14 @@
 
   <!-- Main Area -->
   <div class="main">
-    <div class="table-container" id="tableContainer">
-      <div class="header-row" id="tableHeader"></div>
-      <div id="tableBody" style="overflow:auto; height:100%; position:relative;"></div>
+    <div id="tableWrapper" style="position: relative; width: 100%; height: 80vh; overflow: auto;">
+      <table id="rentTable" style="position: relative;"></table>
     </div>
   </div>
 
 </div>
 
+<!-- Tooltip element -->
 <div id="tooltip" class="tooltip"></div>
 
 <script src="script.js"></script>
