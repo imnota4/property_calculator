@@ -81,6 +81,64 @@ body {
   box-sizing: border-box;
 }
 
+/* --- Grid & Custom Scrollbars --- */
+#gridOuter {
+  position: relative;
+  width: 100%;
+  height: 80vh;
+  display: grid;
+  grid-template-columns: 1fr 10px;
+  grid-template-rows: 1fr 10px;
+  gap: 2px;
+}
+
+#tableWrapper {
+  grid-column: 1;
+  grid-row: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+#scrollbarH {
+  grid-column: 1;
+  grid-row: 2;
+  background: #e0e0e0;
+  border-radius: 5px;
+  position: relative;
+  cursor: pointer;
+}
+
+#scrollbarV {
+  grid-column: 2;
+  grid-row: 1;
+  background: #e0e0e0;
+  border-radius: 5px;
+  position: relative;
+  cursor: pointer;
+}
+
+#thumbH, #thumbV {
+  position: absolute;
+  background: #999;
+  border-radius: 5px;
+  transition: background 0.15s;
+}
+
+#thumbH:hover, #thumbV:hover,
+#thumbH.dragging, #thumbV.dragging {
+  background: #666;
+}
+
+#thumbH {
+  height: 100%;
+  min-width: 30px;
+}
+
+#thumbV {
+  width: 100%;
+  min-height: 30px;
+}
+
 /* --- Grid Styling --- */
 #rentTable {
   position: relative;
