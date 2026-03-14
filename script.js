@@ -1,39 +1,30 @@
 // --- Debounce ---
-function debounce(func,delay){
+function debounce(func, delay) {
   let timeout;
-  return (...args)=>{
+  return function(...args) {
     clearTimeout(timeout);
-    timeout=setTimeout(()=>func(...args),delay);
+    timeout = setTimeout(() => func.apply(this, args), delay);
   }
 }
-const debouncedUpdate=debounce(updateCalculators,50);
+const debouncedUpdateCalculators = debounce(updateCalculators, 100);
 
-// --- Tab switching ---
-function switchTab(tab){
-  document.querySelectorAll('.calculator').forEach(c=>c.classList.remove('active'));
-  document.querySelectorAll('.tab-button').forEach(b=>b.classList.remove('active'));
-  if(tab==='rent'){
-    document.getElementById('rent-calculator').classList.add('active');
-    document.querySelector('.tab-button:nth-child(1)').classList.add('active');
-  }else{
-    document.getElementById('construction-calculator').classList.add('active');
-    document.querySelector('.tab-button:nth-child(2)').classList.add('active');
-  }
-  debouncedUpdate();
+// --- Tab Switching ---
+function switchTab(tab) {
+  document.querySelectorAll('.calculator').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+  if(tab==='rent'){document.getElementById('rent-calculator').classList.add('active');document.querySelector('.tab-button:nth-child(1)').classList.add('active');}
+  else{document.getElementById('construction-calculator').classList.add('active');document.querySelector('.tab-button:nth-child(2)').classList.add('active');}
+  debouncedUpdateCalculators();
 }
 
-// --- Input/Slider Sync ---
-function setupInputSlider(id){
-  const input=document.getElementById(id);
-  const slider=document.getElementById(id+'Slider');
-  input.oninput=()=>{slider.value=input.value;debouncedUpdate();}
-  slider.oninput=()=>{input.value=slider.value;debouncedUpdate();}
+// --- Input / Slider Sync ---
+function setupInputSlider(inputId){
+  const input=document.getElementById(inputId);
+  const slider=document.getElementById(inputId+'Slider');
+  input.oninput=()=>{slider.value=input.value;debouncedUpdateCalculators();};
+  slider.oninput=()=>{input.value=slider.value;debouncedUpdateCalculators();};
 }
-[
-  'interest','years','vacancy','grant',
-  'resMin','resMax','resStep','costMin','costMax','costStep',
-  'costSqFt','sqFtUnit','nonUnit','units','error'
-].forEach(setupInputSlider);
+['interest','years','vacancy','grant','resMin','resMax','resStep','costMin','costMax','costStep','costSqFt','sqFtUnit','nonUnit','units','error'].forEach(setupInputSlider);
 
 // --- Tooltip ---
 const tooltip=document.getElementById('tooltip');
@@ -45,32 +36,34 @@ document.querySelectorAll('label[data-tooltip]').forEach(label=>{
 
 // --- Construction Calculator ---
 function calculateConstruction(){
-  let costSqFt=parseFloat(document.getElementById("costSqFt").value);
-  let sqFtUnit=parseFloat(document.getElementById("sqFtUnit").value);
-  let nonUnit=parseFloat(document.getElementById("nonUnit").value)/100;
-  let units=parseFloat(document.getElementById("units").value);
-  let error=parseFloat(document.getElementById("error").value)/100;
-  let unitSpace=sqFtUnit*units;
-  let totalSqFt=unitSpace/(1-nonUnit);
-  let totalCost=totalSqFt*costSqFt*(1+error);
+  const costSqFt=parseFloat(document.getElementById("costSqFt").value);
+  const sqFtUnit=parseFloat(document.getElementById("sqFtUnit").value);
+  const nonUnit=parseFloat(document.getElementById("nonUnit").value)/100;
+  const units=parseFloat(document.getElementById("units").value);
+  const error=parseFloat(document.getElementById("error").value)/100;
+  const totalSqFt=(sqFtUnit*units)/(1-nonUnit);
+  const totalCost=totalSqFt*costSqFt*(1+error);
   document.getElementById("totalSqFt").innerText=Math.round(totalSqFt).toLocaleString()+" sq ft";
   document.getElementById("totalCost").innerText="$"+Math.round(totalCost).toLocaleString();
 }
 
-// --- Virtualized Rent Table ---
-const tableContainer=document.getElementById('tableContainer');
-const tableHeader=document.getElementById('tableHeader');
-const tableBody=document.getElementById('tableBody');
-const rowHeight=30, colWidth=80, buffer=5;
+// --- Virtualization Settings ---
+const rowHeight=30;
+const colWidth=80;
+const buffer=5;
+const tableWrapper=document.getElementById('tableWrapper');
+const table=document.getElementById('rentTable');
 
+// --- Lazy Rent Computation ---
 function computeRent(cost,residents,interest,years,vacancy,grant){
-  const principal=Math.max(0,cost-grant);
-  const totalInterest=principal*interest*years;
-  const totalCost=principal+totalInterest;
+  const bond=Math.max(0,cost-grant);
+  const totalInterest=bond*interest*years;
+  const totalCost=bond+totalInterest;
   const effectiveResidents=residents*(1-vacancy);
-  return Math.round(totalCost/(years*12*effectiveResidents));
+  return Math.round(totalCost/(years*12)/effectiveResidents);
 }
 
+// --- Virtual Table Render ---
 function renderVirtualTable(){
   const interest=parseFloat(document.getElementById("interest").value)/100;
   const years=parseFloat(document.getElementById("years").value);
@@ -83,73 +76,63 @@ function renderVirtualTable(){
   const costMax=parseInt(document.getElementById("costMax").value);
   const costStep=parseInt(document.getElementById("costStep").value);
 
-  const totalCols=Math.floor((resMax-resMin)/resStep)+1;
   const totalRows=Math.floor((costMax-costMin)/costStep)+1;
+  const totalCols=Math.floor((resMax-resMin)/resStep)+1;
 
-  // Header
-  tableHeader.innerHTML='';
-  tableHeader.style.width=(totalCols*colWidth+colWidth)+'px';
-  const firstHeaderCell=document.createElement('div');
-  firstHeaderCell.className='cell';
-  firstHeaderCell.innerText='Property Cost';
-  tableHeader.appendChild(firstHeaderCell);
-  for(let c=0;c<totalCols;c++){
-    const res=resMin+c*resStep;
-    const div=document.createElement('div');
-    div.className='cell';
-    div.innerText=res;
-    tableHeader.appendChild(div);
-  }
+  table.style.height=totalRows*rowHeight+"px";
+  table.style.width=totalCols*colWidth+"px";
 
-  // Virtualized rows
-  const scrollTop=tableBody.scrollTop;
-  const startRow=Math.max(0,Math.floor(scrollTop/rowHeight)-buffer);
-  const endRow=Math.min(totalRows,startRow+Math.ceil(tableBody.clientHeight/rowHeight)+buffer*2);
+  const scrollTop=tableWrapper.scrollTop;
+  const scrollLeft=tableWrapper.scrollLeft;
 
-  tableBody.innerHTML='';
-  tableBody.style.height=(totalRows*rowHeight)+'px';
-  tableBody.scrollTop=scrollTop;
+  const firstRow=Math.max(0,Math.floor(scrollTop/rowHeight)-buffer);
+  const lastRow=Math.min(totalRows,firstRow+Math.ceil(tableWrapper.clientHeight/rowHeight)+buffer*2);
+  const firstCol=Math.max(0,Math.floor(scrollLeft/colWidth)-buffer);
+  const lastCol=Math.min(totalCols,firstCol+Math.ceil(tableWrapper.clientWidth/colWidth)+buffer*2);
 
-  for(let r=startRow;r<endRow;r++){
+  table.innerHTML="";
+
+  // Header row
+  const headerTr=document.createElement("tr");
+  headerTr.style.position="absolute";
+  headerTr.style.top="0px";
+  headerTr.style.left=(firstCol*colWidth)+"px";
+  headerTr.style.height=rowHeight+"px";
+  headerTr.innerHTML="<th style='width:"+colWidth+"px;'>Property Cost</th>";
+  for(let c=firstCol;c<lastCol;c++){const res=resMin+c*resStep;headerTr.innerHTML+=`<th style="width:${colWidth}px;">${res}</th>`;}
+  table.appendChild(headerTr);
+
+  // Rows
+  for(let r=firstRow;r<lastRow;r++){
     const cost=costMin+r*costStep;
-    const row=document.createElement('div');
-    row.className='row';
-    row.style.position='absolute';
-    row.style.top=(r*rowHeight)+'px';
-    row.style.height=rowHeight+'px';
-    // Property Cost
-    const costCell=document.createElement('div');
-    costCell.className='cell';
-    costCell.innerText='$'+cost.toLocaleString();
-    row.appendChild(costCell);
-    // Resident Rents
-    for(let c=0;c<totalCols;c++){
+    const tr=document.createElement("tr");
+    tr.style.position="absolute";
+    tr.style.top=(r*rowHeight)+"px";
+    tr.style.left="0px";
+    tr.style.height=rowHeight+"px";
+    tr.innerHTML=`<th style="width:${colWidth}px;">$${cost.toLocaleString()}</th>`;
+    for(let c=firstCol;c<lastCol;c++){
       const residents=resMin+c*resStep;
       const rent=computeRent(cost,residents,interest,years,vacancy,grant);
-      const div=document.createElement('div');
-      div.className='cell';
-      div.innerText='$'+rent;
-      if(rent<=250) div.style.background="#4CAF50";
-      else if(rent<=625) div.style.background="#FFD54F";
-      else if(rent<=1000) div.style.background="#FB8C00";
-      else div.style.background="#E53935";
-      row.appendChild(div);
+      let color;
+      if(rent<=250) color="#4CAF50";
+      else if(rent<=625) color="#FFD54F";
+      else if(rent<=1000) color="#FB8C00";
+      else color="#E53935";
+      tr.innerHTML+=`<td style="width:${colWidth}px;background:${color}">$${rent}</td>`;
     }
-    tableBody.appendChild(row);
+    table.appendChild(tr);
   }
 }
 
-tableBody.addEventListener('scroll',()=>{renderVirtualTable();});
-
-// --- Update calculators ---
+// --- Update Calculators ---
 function updateCalculators(){
-  if(document.getElementById('rent-calculator').classList.contains('active')){
-    renderVirtualTable();
-  }
-  if(document.getElementById('construction-calculator').classList.contains('active')){
-    calculateConstruction();
-  }
+  if(document.getElementById('rent-calculator').classList.contains('active')) renderVirtualTable();
+  if(document.getElementById('construction-calculator').classList.contains('active')) calculateConstruction();
 }
 
-// --- Initial ---
-debouncedUpdate();
+// --- Scroll Listener ---
+tableWrapper.addEventListener('scroll',()=>{requestAnimationFrame(renderVirtualTable);});
+
+// --- Initial Update ---
+debouncedUpdateCalculators();
